@@ -1,0 +1,32 @@
+DevManage# .gitignore
+
+# Node modules in both markme and server
+markme/node_modules/
+server/node_modules/
+
+# Environment variables
+markme/.env
+markme/.expo
+server/.env
+
+
+# Build output
+markme/dist/
+server/dist/
+
+# Logs
+markme/logs
+server/logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE specific files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
