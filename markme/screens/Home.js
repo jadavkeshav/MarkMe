@@ -1,9 +1,16 @@
 import React from "react";
-import { Text, View, StyleSheet, Dimensions, FlatList } from "react-native";
-import { CalendarList } from "react-native-calendars";
+import {
+	Text,
+	View,
+	StyleSheet,
+	Dimensions,
+	ScrollView,
+	TouchableOpacity,
+} from "react-native";
+import { Calendar } from "react-native-calendars";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
 
-const screenHeight = Dimensions.get("window").height;
 const screenWidth = Dimensions.get("window").width;
 
 const holidays = {
@@ -13,23 +20,30 @@ const holidays = {
 	"2024-12-25": { name: "Christmas" },
 };
 
-const tickMarkDates = ["2024-01-26", "2024-08-15"];
-
-const notifications = [
-	{ id: "1", message: "Your attendance has been marked successfully.", date: "2024-01-15" },
-	{ id: "2", message: "New updates are available for the app.", date: "2024-01-16" },
-	{ id: "3", message: "Don’t forget to complete your tasks!", date: "2024-01-17" },
-	{ id: "4", message: "A meeting is scheduled for tomorrow at 10 AM.", date: "2024-01-18" },
-	{ id: "5", message: "You have a new message from support.", date: "2024-01-19" },
-	{ id: "6", message: "Your profile has been updated.", date: "2024-01-20" },
+const tickMarkDates = [
+	"2024-01-26",
+	"2024-08-15",
+	"2024-10-15",
+	"2024-10-05",
+	"2024-10-07",
 ];
 
 export default function Home() {
+	const navigation = useNavigation();
+	const currentDate = new Date();
+	const currentYear = currentDate.getFullYear();
+	const currentMonth = currentDate.getMonth() + 1;
+	const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+	const currentMonthDates = Array.from(
+		{ length: daysInMonth },
+		(_, i) => `${currentYear}-${String(currentMonth).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`
+	);
+
 	const markedDates = {
 		...Object.keys(holidays).reduce((acc, date) => {
 			acc[date] = {
 				customStyles: {
-					container: { backgroundColor: "#FFDDC1" },
+					container: { backgroundColor: "#FFE4B5" },
 					text: { color: "blue", fontWeight: "bold" },
 				},
 			};
@@ -43,26 +57,64 @@ export default function Home() {
 			};
 			return acc;
 		}, {}),
+		...currentMonthDates.reduce((acc, date) => {
+			acc[date] = { marked: true };
+			return acc;
+		}, {}),
 	};
 
 	return (
-		<View style={styles.container}>
+		<ScrollView contentContainerStyle={styles.container}>
+			<Text style={styles.title}>Attendance Marking App</Text>
+
+			<View style={styles.gridContainer}>
+				<View style={styles.statBox}>
+					<Text style={styles.statNumber}>150</Text>
+					<Text style={styles.statLabel}>Total Attendance Marked</Text>
+				</View>
+				<View style={styles.statBox}>
+					<Text style={styles.statNumber}>25</Text>
+					<Text style={styles.statLabel}>Classes This Month</Text>
+				</View>
+				<View style={styles.statBox}>
+					<Text style={styles.statNumber}>5</Text>
+					<Text style={styles.statLabel}>Holidays</Text>
+				</View>
+			</View>
+
 			<View style={styles.calendarContainer}>
-				<CalendarList
-					horizontal={true}
-					pagingEnabled={true}
-					calendarWidth={screenWidth}
+				<Calendar
 					markingType={"custom"}
 					markedDates={markedDates}
-					dayComponent={({ date, state }) => {
+					theme={{
+						backgroundColor: "#ffffff",
+						calendarBackground: "#ffffff",
+						textSectionTitleColor: "#b6c1cd",
+						selectedDayBackgroundColor: "#00adf5",
+						selectedDayTextColor: "#ffffff",
+						todayTextColor: "#00adf5",
+						dayTextColor: "#2d4150",
+						arrowColor: "orange",
+						monthTextColor: "#4A90E2",
+						textDayFontFamily: "monospace",
+						textMonthFontFamily: "monospace",
+						textDayHeaderFontFamily: "monospace",
+						textDayFontWeight: "400",
+						textMonthFontWeight: "bold",
+						textDayHeaderFontWeight: "400",
+					}}
+					dayComponent={({ date }) => {
 						const isHoliday = holidays[date.dateString];
-						const isSunday = new Date(date.dateString).getDay() === 0;
 						const isTicked = tickMarkDates.includes(date.dateString);
 
 						return (
 							<View style={styles.dayContainer}>
 								{isTicked ? (
-									<Ionicons name="checkmark-circle-outline" size={24} color="green" />
+									<Ionicons
+										name="checkmark-circle-outline"
+										size={24}
+										color="green"
+									/>
 								) : isHoliday ? (
 									<View style={styles.holidayContainer}>
 										<Text style={styles.holidayText}>{date.day}</Text>
@@ -70,7 +122,11 @@ export default function Home() {
 								) : (
 									<Text
 										style={{
-											color: isSunday ? "red" : state === "disabled" ? "gray" : "black",
+											color:
+												date.dateString ===
+													new Date().toISOString().split("T")[0]
+													? "#00adf5"
+													: "black",
 											fontSize: 16,
 											textAlign: "center",
 										}}
@@ -81,106 +137,86 @@ export default function Home() {
 							</View>
 						);
 					}}
-					theme={{
-						backgroundColor: "#ffffff",
-						calendarBackground: "#ffffff",
-						textSectionTitleColor: "#b6c1cd",
-						selectedDayBackgroundColor: "#00adf5",
-						selectedDayTextColor: "#ffffff",
-						todayTextColor: "#00adf5",
-						dayTextColor: "#2d4150",
-						arrowColor: "orange",
-						monthTextColor: "blue",
-						textDayFontFamily: "monospace",
-						textMonthFontFamily: "monospace",
-						textDayHeaderFontFamily: "monospace",
-						textDayFontWeight: "300",
-						textMonthFontWeight: "bold",
-						textDayHeaderFontWeight: "300",
-					}}
 				/>
 			</View>
 
-			<View style={styles.notificationContainer}>
-				<Text style={styles.notificationTitle}>Notifications</Text>
-				<FlatList
-					data={notifications}
-					keyExtractor={(item) => item.id}
-					renderItem={({ item }) => (
-						<View style={styles.notificationItem}>
-							<Text style={styles.notificationText}>{item.message}</Text>
-							<Text style={styles.notificationDate}>{item.date}</Text>
-						</View>
-					)}
-					contentContainerStyle={styles.notificationList}
-					scrollEnabled={true} 
-				/>
+			<View style={styles.quickActionsContainer}>
+				<Text style={styles.quickActionsTitle}>Quick Actions</Text>
+				<TouchableOpacity
+					style={styles.actionButton}
+					onPress={() => navigation.navigate("MarkAttendance")}
+				>
+					<Text style={styles.actionButtonText}>Mark Attendance</Text>
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={styles.actionButton}
+					onPress={() => navigation.navigate("ViewReports")}>
+					<Text style={styles.actionButtonText}>View Reports</Text>
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={styles.actionButton}
+					onPress={() => navigation.navigate("LeaveRequests")}>
+					<Text style={styles.actionButtonText}>Leave Requests</Text>
+				</TouchableOpacity>
 			</View>
-		</View>
+
+			<View style={styles.footer}>
+				<Text style={styles.footerText}>Made for Everyone</Text>
+				<Text style={styles.footerText}>© 2024 Attendance Marking App</Text>
+			</View>
+		</ScrollView>
 	);
 }
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
-		backgroundColor: "#fff",
+		flexGrow: 1,
+		backgroundColor: "#f0f8ff",
+		padding: 20,
 	},
-	calendarContainer: {
-		height: screenHeight * 0.5,
-		width: screenWidth,
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	notificationContainer: {
-		flex: 1,
-		height: screenHeight * 0.3,
-		width: screenWidth,
-		paddingVertical: 10,
-		backgroundColor: "#f9f9f9",
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	notificationList: {
-		paddingBottom: 10,
-		width: "90%",
-		margin: 10,
-	},
-	notificationTitle: {
-		fontSize: 25,
+	title: {
+		fontSize: 28,
 		fontWeight: "bold",
 		textAlign: "center",
-		marginBottom: 10,
+		marginVertical: 20,
+		color: "#333",
 	},
-	notificationItem: {
-		padding: 10,
-		marginHorizontal: 1,
-		borderBottomWidth: 1,
-		borderBottomColor: "#ddd",
+	gridContainer: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginBottom: 20,
+	},
+	statBox: {
+		backgroundColor: "#4a90e2",
+		padding: 15,
 		borderRadius: 10,
-		marginBottom: 10,
-		height: 75,
-		width: "100%",
-		backgroundColor: "#ffffff",
-		position: "relative",
-	},
-	notificationText: {
-		fontSize: 16,
-	},
-	notificationDate: {
-		position: "absolute",
-		bottom: 5,
-		right: 5,
-		fontSize: 12,
-		color: "lightgray",
-	},
-	textContainer: {
-		height: screenHeight * 0.2,
-		justifyContent: "center",
+		width: "30%",
 		alignItems: "center",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.2,
+		shadowRadius: 6,
+		elevation: 4,
 	},
-	homeText: {
-		fontSize: 24,
+	statNumber: {
+		fontSize: 28,
 		fontWeight: "bold",
+		color: "#fff",
+	},
+	statLabel: {
+		fontSize: 14,
+		color: "#fff",
+	},
+	calendarContainer: {
+		marginBottom: 20,
+		borderRadius: 10,
+		overflow: "hidden",
+		backgroundColor: "#fff",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.2,
+		shadowRadius: 6,
+		elevation: 4,
 	},
 	dayContainer: {
 		alignItems: "center",
@@ -189,7 +225,7 @@ const styles = StyleSheet.create({
 		width: 40,
 	},
 	holidayContainer: {
-		backgroundColor: "green",
+		backgroundColor: "#ff6347",
 		borderRadius: 20,
 		height: 30,
 		width: 30,
@@ -200,5 +236,41 @@ const styles = StyleSheet.create({
 		color: "white",
 		fontWeight: "bold",
 		textAlign: "center",
+	},
+	quickActionsContainer: {
+		marginTop: 20,
+		backgroundColor: "#ffffff",
+		padding: 20,
+		borderRadius: 10,
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.2,
+		shadowRadius: 6,
+		elevation: 4,
+	},
+	quickActionsTitle: {
+		fontSize: 20,
+		fontWeight: "bold",
+		marginBottom: 10,
+		color: "#333",
+	},
+	actionButton: {
+		backgroundColor: "#00adf5",
+		padding: 10,
+		borderRadius: 10,
+		alignItems: "center",
+		marginVertical: 5,
+	},
+	actionButtonText: {
+		color: "#ffffff",
+		fontSize: 16,
+	},
+	footer: {
+		marginTop: 30,
+		alignItems: "center",
+	},
+	footerText: {
+		color: "#666",
+		fontSize: 14,
 	},
 });
