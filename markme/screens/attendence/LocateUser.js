@@ -4,15 +4,16 @@ import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
 
 const centerCoordinates = {
-  // latitude: 17.397313152389106,
-  // longitude: 78.49023979337854,
-  latitude: 17.397167580798143,
-  longitude: 78.51400323189831,
+  latitude: 17.397313152389106,
+  longitude: 78.49023979337854,
+  // latitude: 17.397167580798143,
+  // longitude: 78.51400323189831,
 };
 
 const RADIUS = 1000; //--- > 1-KM
 
 const haversine = (coords1, coords2) => {
+  const R = 6371;
   const toRad = (value) => (value * Math.PI) / 180;
   const φ1 = toRad(coords1.latitude);
   const φ2 = toRad(coords2.latitude);
@@ -60,7 +61,6 @@ export default function LocateUser({ route, navigation }) {
       if (distance <= RADIUS) {
         console.log("SUCCESS");
         navigation.navigate("success")
-
       } else {
         console.log("ERROR")
         navigation.navigate("error")

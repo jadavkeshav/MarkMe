@@ -11,15 +11,16 @@ import {
   Platform,
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { useAuth } from "../util/AuthContext";
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); 
-  const handleLogin = () => {
-    if (username === "user" && password === "password") {
-      onLogin(true); 
-    } else {
+  const { login } = useAuth();
+  const handleLogin = async () => {
+    const success = await login(username, password);
+    if (!success) {
       Alert.alert("Login Failed", "Invalid username or password.");
     }
   };

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { PaperProvider } from "react-native-paper";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createDrawerNavigator} from "@react-navigation/drawer";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -16,6 +16,8 @@ import SuccessPage from "./screens/attendence/SuccessPage";
 import Login from "./screens/Login";
 import { StatusBar, Touchable, View } from "react-native";
 import Profile from "./screens/Profile";
+import { AuthProvider, useAuth } from "./util/AuthContext";
+
 
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
@@ -49,7 +51,7 @@ function MarkAttendenceStackScreen() {
 }
 
 function HomeScreenDrawer() {
-	
+
 	return (
 		<Drawer.Navigator
 			screenOptions={{
@@ -98,10 +100,64 @@ function HomeScreenDrawer() {
 					),
 				}}
 			/>
-			
+
 		</Drawer.Navigator>
 	);
 }
+
+function MainNavigator() {
+	const { user } = useAuth();
+
+	console.log("first" , user)
+
+	return !user ? (
+		<Login />
+	) : (
+		<Tab.Navigator
+			initialRouteName="Home4"
+			screenOptions={{
+				headerShown: false,
+				headerStyle: {
+					color: "#003366",
+				},
+				tabBarLabelStyle: {
+					color: "#003366",
+					fontSize: 16,
+				},
+				tabBarActiveTintColor: "#0056b3",
+				tabBarInactiveTintColor: "#666666",
+			}}
+		>
+			<Tab.Screen
+				name="Home4"
+				component={HomeScreenDrawer}
+				options={{
+					tabBarLabel: "Home",
+					tabBarIcon: ({ color, size }) => (
+						<MaterialCommunityIcons name="home" color={color} size={size} />
+					),
+					tabBarBadge: null,
+				}}
+			/>
+			<Tab.Screen
+				name="markme"
+				component={MarkAttendenceStackScreen}
+				options={{
+					tabBarLabel: "Mark Me",
+					tabBarIcon: ({ color, size }) => (
+						<MaterialCommunityIcons
+							name="checkbox-multiple-marked-circle-outline"
+							size={size}
+							color={color}
+						/>
+					),
+					tabBarBadge: null,
+				}}
+			/>
+		</Tab.Navigator>
+	);
+}
+
 
 
 export default function App() {
@@ -109,61 +165,18 @@ export default function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 	return (
-		<PaperProvider>
-			<StatusBar
-				backgroundColor="white"
-				color="black"
-				barStyle="dark-content"
-			/>
-			<StatusBar style="light" />
-			<NavigationContainer>
-				{!isLoggedIn ? (
-					<Login onLogin={setIsLoggedIn} />
-				) : (
-					<Tab.Navigator
-						initialRouteName="Home4"
-						screenOptions={{
-							headerShown: false,
-							headerStyle: {
-								color: "#003366",
-							},
-							tabBarLabelStyle: {
-								color: "#003366",
-								fontSize: 16,
-							},
-							tabBarActiveTintColor: "#0056b3",
-							tabBarInactiveTintColor: "#666666",
-						}}
-					>
-						<Tab.Screen
-							name="Home4"
-							component={HomeScreenDrawer}
-							options={{
-								tabBarLabel: "Home",
-								tabBarIcon: ({ color, size }) => (
-									<MaterialCommunityIcons name="home" color={color} size={size} />
-								),
-								tabBarBadge: null,
-							}}
-						/>
-						<Tab.Screen
-							name="markme"
-							component={MarkAttendenceStackScreen}
-							options={{
-								tabBarLabel: "Mark Me",
-								tabBarIcon: ({ color, size }) => (
-									<MaterialCommunityIcons
-										name="checkbox-multiple-marked-circle-outline"
-										size={size}
-										color={color}
-									/>
-								),
-								tabBarBadge: null,
-							}}
-						/>
-					</Tab.Navigator>
-				)}
-			</NavigationContainer>
-		</PaperProvider>
+		<AuthProvider>
+			<PaperProvider>
+				<StatusBar
+					backgroundColor="white"
+					color="black"
+					barStyle="dark-content"
+				/>
+				<StatusBar style="light" />
+				<NavigationContainer>
+					<MainNavigator />
+				</NavigationContainer>
+			</PaperProvider>
+		</AuthProvider>
 	);
 }
