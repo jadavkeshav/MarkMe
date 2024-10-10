@@ -9,7 +9,7 @@ router.post('/register', registerUser);
 
 router.get('/get-profile', protect, getProfile);
 
-router.get('/update-password', protect, updatePassword);
+router.post('/update-password', protect, updatePassword);
 
 router.post('/mark-attendance', protect, markAttendance);
 

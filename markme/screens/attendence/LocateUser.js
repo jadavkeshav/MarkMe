@@ -4,13 +4,13 @@ import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
 
 const centerCoordinates = {
-  latitude: 17.397313152389106,
-  longitude: 78.49023979337854,
-  // latitude: 17.397167580798143,
-  // longitude: 78.51400323189831,
+  // latitude: 17.397313152389106,
+  // longitude: 78.49023979337854,
+  latitude: 17.397167580798143,
+  longitude: 78.51400323189831,
 };
 
-const RADIUS = 1000; //--- > 1-KM
+const RADIUS = 1000;
 
 const haversine = (coords1, coords2) => {
   const R = 6371;
@@ -26,12 +26,11 @@ const haversine = (coords1, coords2) => {
     Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c; 
+  return R * c * 1000; 
 };
 
 export default function LocateUser({ route, navigation }) {
   let isVerified = route.params?.isVerified;
-  console.log("ISVERI : ", isVerified)
   const [userLocation, setUserLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -41,8 +40,6 @@ export default function LocateUser({ route, navigation }) {
       setErrorMsg('Permission to access location was denied');
       return;
     }
-
-    console.log("STATUS : ", status)
 
     let location = await Location.getCurrentPositionAsync({});
     setUserLocation(location.coords);
@@ -58,6 +55,7 @@ export default function LocateUser({ route, navigation }) {
     if (userLocation && isVerified) {
       await fetchUserLocation();
       const distance = haversine(centerCoordinates, userLocation);
+      console.log("Distance : ", distance)
       if (distance <= RADIUS) {
         console.log("SUCCESS");
         navigation.navigate("success")

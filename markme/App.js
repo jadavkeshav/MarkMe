@@ -17,6 +17,7 @@ import Login from "./screens/Login";
 import { StatusBar, Touchable, View } from "react-native";
 import Profile from "./screens/Profile";
 import { AuthProvider, useAuth } from "./util/AuthContext";
+import { getDate } from "./util/session";
 
 
 const Drawer = createDrawerNavigator();
@@ -108,7 +109,8 @@ function HomeScreenDrawer() {
 function MainNavigator() {
 	const { user } = useAuth();
 
-	console.log("first" , user)
+	console.log("first" , user?.user)
+
 
 	return !user ? (
 		<Login />

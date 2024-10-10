@@ -1,15 +1,45 @@
+import axios from 'axios';
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, ToastAndroid } from 'react-native';
 import { TextInput, Button, Title } from 'react-native-paper';
+import { useAuth } from '../util/AuthContext';
 
 export default function Settings() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleUpdatePassword = () => {
-        if (newPassword === confirmPassword) {
-            Alert.alert("Success", "Password updated successfully!");
+    function showToast(msg) {
+        ToastAndroid.show(msg, ToastAndroid.SHORT);
+    }
+
+    const { user: { token } } = useAuth();
+
+
+    const handleUpdatePassword = async () => {
+        if (!newPassword || !currentPassword || !confirmPassword) {
+            showToast("Please provide all the fields")
+            return false
+        }
+        if ((newPassword === confirmPassword) && token) {
+            try {
+                const response = await axios.post('http://192.168.1.4:8000/api/user/update-password', {
+                    oldPassword: currentPassword,
+                    newPassword
+                }, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                if (response.status === 200) {
+                    showToast(response.data.message)
+                } else {
+                    throw new Error('Invalid credentials');
+                }
+            } catch (error) {
+                console.error('Change Password error:', error.response.data);
+                return false;
+            }
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
@@ -59,16 +89,16 @@ const styles = StyleSheet.create({
     },
     title: {
         marginBottom: 20,
-        color: "#333", 
+        color: "#333",
     },
     input: {
         width: '100%',
         marginBottom: 10,
-        backgroundColor: '#fff', 
+        backgroundColor: '#fff',
         borderRadius: 5,
     },
     button: {
         marginTop: 10,
-        width: '100%', 
+        width: '100%',
     },
 });

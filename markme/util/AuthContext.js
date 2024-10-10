@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { clearAllData } from './session';
 
 // Create the context
 const AuthContext = createContext();
@@ -20,6 +21,9 @@ export const AuthProvider = ({ children }) => {
                     const parsedData = JSON.parse(userData);
                     if (parsedData.token) {
                         setUser(parsedData);
+                        const profileData = await AsyncStorage.getItem('user-profile');
+                        const pData = JSON.parse(profileData);
+                        setProfile(pData)
                     }
                 }
             } catch (error) {
@@ -27,11 +31,12 @@ export const AuthProvider = ({ children }) => {
             }
         };
         loadUser();
+        // clearAllData();
     }, []);
-    
+
     const login = async (username, password) => {
         try {
-            const response = await axios.post('http://192.168.1.5:8000/api/user/login', {
+            const response = await axios.post('http://192.168.1.4:8000/api/user/login', {
                 username,
                 password,
             });
@@ -39,18 +44,19 @@ export const AuthProvider = ({ children }) => {
             if (response.data && response.data.user) {
                 const userData = response.data;
 
-                const pro = await axios.get('http://192.168.1.5:8000/api/user/get-profile', {
-                   headers:{
-                    "Authorization" : `Bearer ${userData.token}`
-                   }
+                const pro = await axios.get('http://192.168.1.4:8000/api/user/get-profile', {
+                    headers: {
+                        "Authorization": `Bearer ${userData.token}`
+                    }
                 });
 
+                console.log("Second : ", pro)
                 if (pro.data) {
                     const profileData = pro.data;
                     setProfile(pro.data);
-                    await AsyncStorage.setItem('user', JSON.stringify(profileData));
+                    await AsyncStorage.setItem('user-profile', JSON.stringify(profileData));
+                    // console.log(profileData)
                 }
-
                 setUser(userData);
                 await AsyncStorage.setItem('user', JSON.stringify(userData));
                 return true;
@@ -62,6 +68,8 @@ export const AuthProvider = ({ children }) => {
             return false;
         }
     };
+
+    
 
     const logout = async () => {
         setUser(null);

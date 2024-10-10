@@ -88,6 +88,22 @@ const loginUser = async (req, res) => {
             { expiresIn: '30d' }
         );
 
+        const profile = await profileModel.findOne({ rollNo: username });
+        if (!profile) {
+            return res.status(404).json({ message: 'Profile Not Found' });
+        }
+        const record = await attendenceRecordModel.findOne({user: user._id})
+        const userProfile = {
+            name: profile.name,
+            username: profile.username,
+            rollNo: profile.rollNo,
+            profilePhoto: profile.profilePhoto,
+            role: user.role,
+            attendancePercentage: profile.attendancePercentage,
+            attendenceRecord: record.records
+        }
+
+
         res.json({
             token,
             user: {
@@ -95,6 +111,7 @@ const loginUser = async (req, res) => {
                 name: user.name,
                 username: user.username,
                 role: user.role,
+                ...userProfile
             }
         });
     } catch (error) {
@@ -201,8 +218,11 @@ const getProfile = async (req, res) => {
 
 const updatePassword = asyncHandler(async (req, res) => {
     const { userId } = req.user; // Get userId from the request, assumed to be added via middleware
-    const { oldPassword, newPassword } = req.body; // Get old and new passwords from request body
+    console.log("User Id for password chnage : ", userId)
+    const { oldPassword, newPassword } = req.body; 
+    // Get old and new passwords from request body
 
+    
     const user = await User.findById(userId);
     if (!user) {
         return res.status(404).json({ message: 'User not found' });

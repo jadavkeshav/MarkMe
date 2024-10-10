@@ -9,19 +9,26 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ToastAndroid,
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAuth } from "../util/AuthContext";
 
 const Login = () => {
+
+  function showToast(msg) {
+    ToastAndroid.show(msg, ToastAndroid.SHORT);
+  }
+
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const handleLogin = async () => {
     const success = await login(username, password);
     if (!success) {
-      Alert.alert("Login Failed", "Invalid username or password.");
+      showToast("Invalid username or password.");
     }
   };
 
@@ -75,14 +82,14 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: "center", 
+    justifyContent: "center",
   },
   title: {
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 10,
     color: "#003366",
-    textAlign: "center", 
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
@@ -117,7 +124,7 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: "absolute",
     right: 15,
-    top: "50%", 
+    top: "50%",
     transform: [{ translateY: -12 }],
   },
   loginButton: {
@@ -125,8 +132,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    alignSelf: "center", 
-    marginVertical: 20, 
+    alignSelf: "center",
+    marginVertical: 20,
   },
   buttonText: {
     color: "#ffffff",
