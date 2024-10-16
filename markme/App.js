@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { PaperProvider } from "react-native-paper";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { CommonActions } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
@@ -17,7 +18,8 @@ import Login from "./screens/Login";
 import { StatusBar, Touchable, View } from "react-native";
 import Profile from "./screens/Profile";
 import { AuthProvider, useAuth } from "./util/AuthContext";
-import { getDate } from "./util/session";
+import { clearAllData, getDate } from "./util/session";
+import axios from "axios";
 
 
 const Drawer = createDrawerNavigator();
@@ -109,7 +111,38 @@ function HomeScreenDrawer() {
 function MainNavigator() {
 	const { user } = useAuth();
 
-	console.log("first" , user?.user)
+
+	const checkJWT = async () => {
+		try {
+			const response = await axios.get("http://192.168.1.4:8000/api/user/check", {
+				headers: {
+					Authorization: `Bearer ${user?.token}`,
+				},
+			});
+		} catch (error) {
+			if (error.response && error.response.status === 401) {
+				console.log("Token expired, logging out...");
+				clearAllData();
+				window.location.reload();
+			} else {
+				console.log("Error : ", error);
+			}
+		}
+	};
+
+
+	useEffect(() => {
+		if (user?.token) {
+			const interval = setInterval(() => {
+				checkJWT();
+				console.log("Check : ", user?.token);
+			}, 60000);
+
+			return () => clearInterval(interval);
+		}
+	}, [user]);
+
+	console.log("first", user?.user)
 
 
 	return !user ? (

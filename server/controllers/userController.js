@@ -10,6 +10,28 @@ const generateToken = (username, userId, role) => {
     return jwt.sign({ username, userId, role }, process.env.JWT_SECRET, { expiresIn: '9hr' });
 };
 
+const checkToken = (req, res) => {
+    const token = req.headers["authorization"]?.split(" ")[1];
+
+    if (!token) {
+        console.log("No token provided")
+        return res.status(403).json({ message: "No token provided" });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            if (err.name === "TokenExpiredError") {
+                console.log("Token has expired")
+                return res.status(401).json({ message: "Token has expired" });
+            }
+            console.log("Invalid token")
+            return res.status(401).json({ message: "Invalid token" });
+        }
+        console.log("Token is valid");
+        return res.status(200).json({ message: "Token is valid", user: decoded });
+    });
+};
+
 const registerUser = asyncHandler(async (req, res) => {
     let { username, password, role, rollNo, name, profilePhoto } = req.body;
 
@@ -92,7 +114,7 @@ const loginUser = async (req, res) => {
         if (!profile) {
             return res.status(404).json({ message: 'Profile Not Found' });
         }
-        const record = await attendenceRecordModel.findOne({user: user._id})
+        const record = await attendenceRecordModel.findOne({ user: user._id })
         const userProfile = {
             name: profile.name,
             username: profile.username,
@@ -134,7 +156,7 @@ const getProfile = async (req, res) => {
         if (!profile) {
             return res.status(404).json({ message: 'Profile Not Found' });
         }
-        const record = await attendenceRecordModel.findOne({user: userId})
+        const record = await attendenceRecordModel.findOne({ user: userId })
         const userProfile = {
             name: profile.name,
             username: profile.username,
@@ -219,10 +241,10 @@ const getProfile = async (req, res) => {
 const updatePassword = asyncHandler(async (req, res) => {
     const { userId } = req.user; // Get userId from the request, assumed to be added via middleware
     console.log("User Id for password chnage : ", userId)
-    const { oldPassword, newPassword } = req.body; 
+    const { oldPassword, newPassword } = req.body;
     // Get old and new passwords from request body
 
-    
+
     const user = await User.findById(userId);
     if (!user) {
         return res.status(404).json({ message: 'User not found' });
@@ -295,7 +317,7 @@ const markAttendance = async (req, res) => {
     const userId = req.user.id; // Get the user ID from the request
     let currentTime = new Date("2024-10-10T17:00:00.000Z"); // Get the current time
     console.log("Current Time : ", currentTime);
-    
+
     const todayStart = new Date("2024-10-10T17:00:00.000Z").setHours(0, 0, 0, 0); // Start of today
     try {
         // Fetch the attendance record for the user
@@ -379,5 +401,6 @@ module.exports = {
     registerUser,
     getProfile,
     updatePassword,
-    markAttendance
+    markAttendance,
+    checkToken
 }
