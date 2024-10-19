@@ -7,6 +7,9 @@ var cron = require('node-cron');
 cron.schedule('0 20 * * *', () => {
     console.log('Running a task every day at 8 PM');
 });
+cron.schedule('* * * * *', () => {
+    console.log('Running a task every minute');
+});
 
 cron.schedule('0 * * * *', () => {
     console.log('Running a task at the start of every hour');
