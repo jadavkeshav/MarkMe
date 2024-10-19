@@ -13,7 +13,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
             const profile = await profileModel.findOne({ user: decoded.userId })
            
-            req.user = await User.findById(decoded.userId);
+            req.user = await User.findById(decoded.userId).select('-password');
             req.user.userId = decoded.userId;
     
             if (!req.user) {

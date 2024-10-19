@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const profileModel = require('../models/profileModel');
 const attendenceRecordModel = require('../models/attendenceRecordModel');
+var cron = require('node-cron');
 
 
 const generateToken = (username, userId, role) => {
@@ -176,74 +177,10 @@ const getProfile = async (req, res) => {
     }
 }
 
-// const markAttendance = asyncHandler(async (req, res) => {
-//     const userId = req.user.userId;
-//     const currentTime = new Date();
-//     const today = new Date().toISOString().split('T')[0];
-
-//     let attendanceRecord = await attendenceRecordModel.findOne({ user: userId });
-
-//     if (!attendanceRecord) {
-//         attendanceRecord = await attendenceRecordModel.create({ user: userId });
-//     }
-
-//     let todayRecord = attendanceRecord.records.find(record => {
-//         return record.date.toISOString().split('T')[0] === today;
-//     });
-
-//     if (!todayRecord) {
-//         todayRecord = {
-//             date: currentTime,
-//             checkInTimes: [currentTime],
-//             status: 'half-day',
-//         };
-//         attendanceRecord.records.push(todayRecord);
-//     } else {
-//         const checkInCount = todayRecord.checkInTimes.length;
-
-//         if (checkInCount === 1) {
-//             const firstCheckInTime = new Date(todayRecord.checkInTimes[0]);
-//             const hoursSinceFirstCheckIn = (currentTime - firstCheckInTime) / (1000 * 60 * 60);
-
-//             if (hoursSinceFirstCheckIn < 2) {
-//                 return res.status(400).json({
-//                     message: 'For half-day attendance, you need to wait at least 2 hours before the second check-in.',
-//                 });
-//             } else if (hoursSinceFirstCheckIn >= 2 && hoursSinceFirstCheckIn < 6) {
-//                 todayRecord.checkInTimes.push(currentTime);
-//                 todayRecord.status = 'half-day';
-//             } else if (hoursSinceFirstCheckIn >= 6 && hoursSinceFirstCheckIn <= 9) {
-//                 todayRecord.checkInTimes.push(currentTime);
-//                 todayRecord.status = 'present';
-//                 todayRecord.checkInTimes = [];
-//             } else {
-//                 todayRecord.status = 'absent';
-//                 todayRecord.checkInTimes = [];
-//                 return res.status(400).json({
-//                     message: 'Time window for full-day check-in missed. You have been marked absent.',
-//                 });
-//             }
-//         } else {
-//             return res.status(400).json({
-//                 message: 'You have already marked attendance twice today.',
-//             });
-//         }
-//     }
-
-//     await attendanceRecord.save();
-
-//     res.status(200).json({
-//         message: `Attendance marked successfully as ${todayRecord.status}.`,
-//         attendanceRecord,
-//     });
-// });
-
 const updatePassword = asyncHandler(async (req, res) => {
-    const { userId } = req.user; // Get userId from the request, assumed to be added via middleware
+    const { userId } = req.user;
     console.log("User Id for password chnage : ", userId)
     const { oldPassword, newPassword } = req.body;
-    // Get old and new passwords from request body
-
 
     const user = await User.findById(userId);
     if (!user) {
@@ -269,130 +206,317 @@ const updatePassword = asyncHandler(async (req, res) => {
 });
 
 
-const fillMissingAttendance = async (userId, startDate, endDate) => {
-    try {
-        // Fetch the attendance record for the user
-        const attendanceRecord = await attendenceRecordModel.findOne({ user: userId });
+// const fillMissingAttendance = async (userId, startDate, endDate) => {
+//     try {
+//         // Fetch the attendance record for the user
+//         const attendanceRecord = await attendenceRecordModel.findOne({ user: userId });
 
-        // If no record exists, return early
-        if (!attendanceRecord) {
-            console.log('No attendance record found for user:', userId);
-            return;
+//         // If no record exists, return early
+//         if (!attendanceRecord) {
+//             console.log('No attendance record found for user:', userId);
+//             return;
+//         }
+
+//         // Create an array of existing dates
+//         const existingDates = attendanceRecord.records.map(record => {
+//             return new Date(record.date).setHours(0, 0, 0, 0);
+//         });
+
+//         // Sort existing dates in ascending order
+//         existingDates.sort((a, b) => a - b);
+
+//         // Ensure startDate is the earliest and endDate is the latest
+//         const sortedDates = [new Date(startDate), new Date(endDate)].sort((a, b) => a - b);
+//         const [finalStartDate, finalEndDate] = sortedDates;
+
+//         let currentDate = finalStartDate;
+
+//         while (currentDate <= finalEndDate) {
+//             const currentDateStart = new Date(currentDate).setHours(0, 0, 0, 0);
+//             if (!existingDates.includes(currentDateStart)) {
+//                 // If the current date is not present, push a new absent record
+//                 attendanceRecord.records.push({
+//                     date: currentDate,
+//                     status: 'absent',
+//                 });
+//             }
+//             currentDate.setDate(currentDate.getDate() + 1);
+//         }
+//         await attendanceRecord.save();
+//         console.log('Updated attendance records for user:', userId);
+//     } catch (error) {
+//         console.error('Error filling missing attendance:', error);
+//     }
+// };
+
+
+// const markAttendance = async (req, res) => {
+//     const userId = req.user.id; // Get the user ID from the request
+//     let currentTime = new Date(); // Get the current time
+//     console.log("Current Time : ", currentTime);
+
+//     const todayStart = new Date().setHours(0, 0, 0, 0); // Start of today
+//     try {
+//         // Fetch the attendance record for the user
+//         let attendanceRecord = await attendenceRecordModel.findOne({ user: userId });
+
+//         // If no record exists, create a new one
+//         if (!attendanceRecord) {
+//             attendanceRecord = await attendenceRecordModel.create({
+//                 user: userId,
+//                 records: [{
+//                     date: currentTime,
+//                     firstCheckInTime: currentTime, // Store first check-in time here
+//                     status: 'half-day'
+//                 }]
+//             });
+//             return res.json({ message: 'First check-in recorded as half-day', attendanceRecord });
+//         }
+
+//         const todayRecord = attendanceRecord.records.find(record => {
+//             // Check if the record's date is today
+//             const recordDate = new Date(record.date).setHours(0, 0, 0, 0);
+//             return recordDate === todayStart;
+//         });
+
+//         console.log("Today record : ", todayRecord);
+
+//         // If there's no attendance record for today, push a new record
+//         if (!todayRecord) {
+//             attendanceRecord.records.push({
+//                 date: currentTime,
+//                 firstCheckInTime: currentTime, // Store the first check-in time for new records
+//                 status: 'half-day'
+//             });
+//             await attendanceRecord.save();
+//             return res.json({ message: 'First check-in recorded as half-day', attendanceRecord });
+//         }
+
+//         // Check status and calculate time differences
+//         if (todayRecord.status === 'half-day') {
+//             const firstCheckInTime = new Date(todayRecord.date); // Use date from todayRecord for comparison
+//             console.log("First Check-In Time: ", firstCheckInTime);
+
+//             // Calculate hours since the first check-in
+//             const hoursSinceFirstCheckIn = (currentTime - firstCheckInTime) / (1000 * 60 * 60);
+//             console.log(`Hours since first check-in: ${hoursSinceFirstCheckIn}`);
+
+//             // Update attendance status based on time since first check-in
+//             if (hoursSinceFirstCheckIn >= 2 && hoursSinceFirstCheckIn <= 9) {
+//                 todayRecord.status = 'present'; // Mark as present
+//                 await attendanceRecord.save(); // Save the updated attendance record
+//                 return res.json({ message: 'Second check-in recorded, marked as present', attendanceRecord });
+//             } else if (hoursSinceFirstCheckIn > 9) {
+//                 return res.status(400).json({
+//                     message: 'Too much time has passed since the first check-in. Status remains as half-day'
+//                 });
+//             } else {
+//                 return res.status(400).json({
+//                     message: 'Check-in too soon, please try again later'
+//                 });
+//             }
+//         } else {
+//             return res.status(400).json({ message: 'Attendance already marked as present for today' });
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Error marking attendance' });
+//     }
+// };
+
+function getYesterdaysDate() {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return yesterday;
+}
+
+function getTimeDifferenceFromNineAM() {
+    const nineAM = new Date();
+    nineAM.setHours(9, 0, 0, 0);
+    const now = new Date();
+    if (now.getDate() === nineAM.getDate() &&
+        now.getMonth() === nineAM.getMonth() &&
+        now.getFullYear() === nineAM.getFullYear()) {
+        let difference = now - nineAM;
+        // console.log("DIfference : ", difference)
+        if (difference < 0) {
+            return {
+                success: false,
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+                date: NaN
+            };
         }
-
-        // Create an array of existing dates
-        const existingDates = attendanceRecord.records.map(record => {
-            return new Date(record.date).setHours(0, 0, 0, 0);
-        });
-
-        // Sort existing dates in ascending order
-        existingDates.sort((a, b) => a - b);
-
-        // Ensure startDate is the earliest and endDate is the latest
-        const sortedDates = [new Date(startDate), new Date(endDate)].sort((a, b) => a - b);
-        const [finalStartDate, finalEndDate] = sortedDates;
-
-        let currentDate = finalStartDate;
-
-        while (currentDate <= finalEndDate) {
-            const currentDateStart = new Date(currentDate).setHours(0, 0, 0, 0);
-            if (!existingDates.includes(currentDateStart)) {
-                // If the current date is not present, push a new absent record
-                attendanceRecord.records.push({
-                    date: currentDate,
-                    status: 'absent',
-                });
-            }
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-        await attendanceRecord.save();
-        console.log('Updated attendance records for user:', userId);
-    } catch (error) {
-        console.error('Error filling missing attendance:', error);
+        const hours = Math.floor(difference / (1000 * 60 * 60));
+        difference %= (1000 * 60 * 60);
+        const minutes = Math.floor(difference / (1000 * 60));
+        difference %= (1000 * 60);
+        const seconds = Math.floor(difference / 1000);
+        return {
+            success: true,
+            hours: hours,
+            minutes: minutes,
+            seconds: seconds,
+            date: now.toDateString()
+        };
+    } else {
+        return {
+            success: false,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            date: NaN
+        };
     }
-};
+}
 
+function getTimeDifferenceFromObject(timeObject) {
+    const { hours, minutes, seconds, date } = timeObject;
+    // console.log("TimeObject : ", timeObject)
+    const targetDate = new Date(date);
+    const now = new Date();
+    if (targetDate.getDate() === now.getDate() &&
+        targetDate.getMonth() === now.getMonth() &&
+        targetDate.getFullYear() === now.getFullYear()) {
+        const targetTime = new Date();
+        targetTime.setHours(hours, minutes, seconds, 0);
+        let difference = now - targetTime;
+        if (difference < 0) {
+            return {
+                success: false,
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+                date: now
+            };
+        }
+        const diffHours = Math.floor(difference / (1000 * 60 * 60));
+        difference %= (1000 * 60 * 60);
+        const diffMinutes = Math.floor(difference / (1000 * 60));
+        difference %= (1000 * 60);
+        const diffSeconds = Math.floor(difference / 1000);
+        return {
+            hours: diffHours,
+            minutes: diffMinutes,
+            seconds: diffSeconds
+        };
+    } else {
+        return "The passed date is not today's date.";
+    }
+}
+
+
+function convertDateToObject(date) {
+    if (typeof date === 'string') {
+        date = new Date(date);
+    }
+    if (!(date instanceof Date) || isNaN(date)) {
+        return "Invalid date input.";
+    }
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const seconds = date.getUTCSeconds();
+    return {
+        hours: hours,
+        minutes: minutes,
+        seconds: seconds,
+        date: date.toDateString()
+    };
+}
 
 const markAttendance = async (req, res) => {
-    const userId = req.user.id; // Get the user ID from the request
-    let currentTime = new Date("2024-10-10T17:00:00.000Z"); // Get the current time
-    console.log("Current Time : ", currentTime);
-
-    const todayStart = new Date("2024-10-10T17:00:00.000Z").setHours(0, 0, 0, 0); // Start of today
+    const userId = req.user.id;
+    const username = req.user.username;
     try {
-        // Fetch the attendance record for the user
-        let attendanceRecord = await attendenceRecordModel.findOne({ user: userId });
-
-        // If no record exists, create a new one
-        if (!attendanceRecord) {
-            attendanceRecord = await attendenceRecordModel.create({
-                user: userId,
-                records: [{
-                    date: currentTime,
-                    firstCheckInTime: currentTime, // Store first check-in time here
-                    status: 'half-day'
-                }]
-            });
-            return res.json({ message: 'First check-in recorded as half-day', attendanceRecord });
+        const diff9 = getTimeDifferenceFromNineAM();
+        // console.log("Diff9 : ", diff9.success);
+        if (!diff9.success) {
+            console.log(`${username} => Too Early.Can't Mark attendence now.`);
+            return res.status(401).json({ message: "Too Early.Can't Mark attendence now." });
         }
-
-        const todayRecord = attendanceRecord.records.find(record => {
-            // Check if the record's date is today
-            const recordDate = new Date(record.date).setHours(0, 0, 0, 0);
-            return recordDate === todayStart;
+        const userRecords = await attendenceRecordModel.findOne({
+            user: userId,
         });
 
-        console.log("Today record : ", todayRecord);
-
-        // If there's no attendance record for today, push a new record
-        if (!todayRecord) {
-            attendanceRecord.records.push({
-                date: currentTime,
-                firstCheckInTime: currentTime, // Store the first check-in time for new records
-                status: 'half-day'
-            });
-            await attendanceRecord.save();
-            return res.json({ message: 'First check-in recorded as half-day', attendanceRecord });
+        if (!userRecords) {
+            if (!diff9.success) {
+                console.log(`${username} => Can't Mark attendence now.`);
+                return res.status(401).json({ message: "Can't Mark attendence now." });
+            }
+            if ((diff9.hours > 0) && (diff9.hours < 20)) {
+                const newUserRecod = await attendenceRecordModel.create({
+                    user: userId,
+                    records: {
+                        date: diff9.date,
+                        status: 'half-day'
+                    }
+                })
+                console.log(`${username} => Attendence marked as half-day`);
+                return res.json({ message: 'Attendence marked as half-day', newUserRecod });
+            } else {
+                console.log(`${username} => Can't Mark attendence now.`);
+                return res.status(401).json({ message: "Can't Mark attendence now." });
+            }
         }
 
-        // Check status and calculate time differences
-        if (todayRecord.status === 'half-day') {
-            const firstCheckInTime = new Date(todayRecord.date); // Use date from todayRecord for comparison
-            console.log("First Check-In Time: ", firstCheckInTime);
-
-            // Calculate hours since the first check-in
-            const hoursSinceFirstCheckIn = (currentTime - firstCheckInTime) / (1000 * 60 * 60);
-            console.log(`Hours since first check-in: ${hoursSinceFirstCheckIn}`);
-
-            // Update attendance status based on time since first check-in
-            if (hoursSinceFirstCheckIn >= 2 && hoursSinceFirstCheckIn <= 9) {
-                todayRecord.status = 'present'; // Mark as present
-                await attendanceRecord.save(); // Save the updated attendance record
-                return res.json({ message: 'Second check-in recorded, marked as present', attendanceRecord });
-            } else if (hoursSinceFirstCheckIn > 9) {
-                return res.status(400).json({
-                    message: 'Too much time has passed since the first check-in. Status remains as half-day'
-                });
-            } else {
-                return res.status(400).json({
-                    message: 'Check-in too soon, please try again later'
-                });
+        let todayUserRecord = userRecords.records.filter((record) => {
+            const recordDate = new Date(record.date).toDateString();
+            return recordDate == diff9.date
+        });
+        if (!todayUserRecord) {
+            let nowAtt = {
+                date: diff9.date,
+                status: 'half-day'
             }
+            userRecords.records.push(nowAtt);
+            await userRecords.save();
+            console.log(`${username} => New record created and attendence marked as half-day.`);
+            return res.json({ message: 'Attendence marked as half-day', attendanceRecord });
+        }
+        // console.log("DATE ---- > : ", todayUserRecord[0].date)
+        const firstCheckIn = convertDateToObject(todayUserRecord[0].date);
+        console.log(`${username} => First-check-In`);
+        // console.log("First check-in : ", firstCheckIn);
+        const secondCheckIn = getTimeDifferenceFromObject(firstCheckIn);
+        console.log(`${username} => Second-Check-In.`);
+        // console.log("Second check-in : ", secondCheckIn);
+
+        if (((secondCheckIn.hours >= 5) && (secondCheckIn.minutes >= 55)) && secondCheckIn.hours <= 8) {
+            let nowAtt = {
+                date: diff9.date,
+                status: 'present'
+            }
+            userRecords.records.push(nowAtt);
+            await userRecords.save();
+            console.log(`${username} => Attendence marked as Present.`);
+            return res.json({ message: 'Attendence marked as Present', attendanceRecord });
+        } else if (secondCheckIn.hours >= 2 && ((secondCheckIn.hours < 5) && (secondCheckIn.minutes < 55))) {
+            let nowAtt = {
+                date: diff9.date,
+                status: 'half-day'
+            }
+            userRecords.records.push(nowAtt);
+            await userRecords.save();
+            console.log(`${username} => Attendence marked as half-day.`);
+            return res.json({ message: 'Attendence marked as half-day', attendanceRecord });
+        } else if ((secondCheckIn.hours >= 9) && (secondCheckIn.minutes >= 1)) {
+            console.log(`${username} => Too much time has passed since the first check-in. Status remains as half-day.`);
+            return res.status(400).json({
+                message: 'Too much time has passed since the first check-in. Status remains as half-day'
+            });
         } else {
-            return res.status(400).json({ message: 'Attendance already marked as present for today' });
+            console.log(`${username} => Check-in too soon, please try again later.`);
+            return res.status(400).json({
+                message: 'Check-in too soon, please try again later'
+            });
         }
     } catch (error) {
         console.error(error);
+        console.log(`${username} => Error marking attendance.`);
         res.status(500).json({ message: 'Error marking attendance' });
     }
-};
-
-
-
-
-
-
-// module.exports = { markAttendance };
+}
 
 
 
