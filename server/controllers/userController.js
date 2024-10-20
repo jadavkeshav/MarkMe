@@ -516,6 +516,46 @@ const test = () => {
     console.log("diffff : ", diffffff)
 }
 
+const markAbsent = async (req, res) => {
+    const today = new Date();
+    const todayDateString = today.toDateString();
+    const isSunday = today.getDay() === 0;
+
+    try {
+        const holidayData = fs.readFileSync(holidayFilePath, 'utf8');
+        const holidays = JSON.parse(holidayData);
+        const isHoliday = holidays.some(holiday => new Date(holiday.date).toDateString() === todayDateString);
+
+        if (isHoliday || isSunday) {
+            console.log("Today is a holiday or Sunday. Skipping absentee marking.");
+            return;
+        }
+
+        const users = await User.find();
+
+        users.forEach(async (user) => {
+            let attendanceRecord = await attendenceRecordModel.findOne({ user: user._id });
+
+            if (!attendanceRecord || !attendanceRecord.records.find(record => record.date.toLocaleDateString() === today.toLocaleDateString())) {
+                if (!attendanceRecord) {
+                    attendanceRecord = new attendenceRecordModel({ user: user._id, records: [] });
+                }
+
+                attendanceRecord.records.push({
+                    date: new Date(),
+                    status: 'absent',
+                });
+
+                await attendanceRecord.save();
+                console.log(`User ${user.username} marked as absent.`);
+            }
+        });
+
+        console.log('Absent users have been marked successfully.');
+    } catch (error) {
+        console.error('Error marking absentees:', error);
+    }
+}
 
 const markAttendance = async (req, res) => {
     const userId = req.user.id;
@@ -530,7 +570,7 @@ const markAttendance = async (req, res) => {
         const holidays = JSON.parse(holidayData);
         const isHoliday = holidays.some(holiday => new Date(holiday.date).toDateString() === currentTime.toDateString());
 
-        const isSunday = currentTime.getDay() === 0; 
+        const isSunday = currentTime.getDay() === 0;
 
         if (isHoliday || isSunday) {
             return res.status(400).json({ success: false, message: "Cannot mark attendance on holidays or Sundays" });
@@ -555,7 +595,7 @@ const markAttendance = async (req, res) => {
                 date: currentTime,
                 status: 'half-day',
                 firstCheckIn: currentTime,
-                location: req.body.location, 
+                location: req.body.location,
             });
 
             await attendanceRecord.save();
@@ -570,7 +610,7 @@ const markAttendance = async (req, res) => {
                 return res.status(400).json({ success: false, message: "Second check-in must be at least 2 hours after the first check-in" });
             } else if (timeDifferenceFromFirstCheckIn.hours >= 2 && timeDifferenceFromFirstCheckIn.hours < 5) {
 
-                todayRecord.status = 'half-day'; 
+                todayRecord.status = 'half-day';
                 todayRecord.secondCheckIn = currentTime;
 
                 await attendanceRecord.save();
@@ -578,7 +618,7 @@ const markAttendance = async (req, res) => {
             } else if (timeDifferenceFromFirstCheckIn.hours >= 5 && timeDifferenceFromFirstCheckIn.hours <= 9) {
 
                 todayRecord.status = 'present';
-                todayRecord.secondCheckIn = currentTime; 
+                todayRecord.secondCheckIn = currentTime;
 
                 await attendanceRecord.save();
                 return res.status(200).json({ success: true, message: "Second check-in recorded, status marked as present" });
@@ -596,7 +636,7 @@ const markAttendance = async (req, res) => {
 
 function getTimeDifferenceFromNineAM(currentTime) {
     const nineAM = new Date();
-    nineAM.setHours(9, 0, 0, 0); 
+    nineAM.setHours(9, 0, 0, 0);
     return getTimeDifferenceFromObject(nineAM, currentTime);
 }
 
@@ -619,5 +659,7 @@ module.exports = {
     checkToken,
     isHoliday,
     getHolidays,
-    test
+    test,
+    markAbsent
+    
 }
