@@ -35,6 +35,7 @@ app.use(cors());
 connectDB();
 
 app.get('/test', (req, res) => {
+    console.log("/test point hitting ", new Date().toLocaleString())
     res.json({ message: `Server running on port ${PORT} on Process ${process.pid}` })
 })
 
