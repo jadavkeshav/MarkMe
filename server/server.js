@@ -34,7 +34,7 @@ app.use(cors());
 
 connectDB();
 
-app.get('/', (req, res) => {
+app.get('/test', (req, res) => {
     res.json({ message: `Server running on port ${PORT} on Process ${process.pid}` })
 })
 
