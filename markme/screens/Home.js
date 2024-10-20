@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
 	Text,
 	View,
@@ -10,15 +10,16 @@ import {
 import { Calendar } from "react-native-calendars";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../util/AuthContext";
 
 const screenWidth = Dimensions.get("window").width;
 
-const holidays = {
-	"2024-01-26": { name: "Republic Day" },
-	"2024-08-15": { name: "Independence Day" },
-	"2024-10-02": { name: "Gandhi Jayanti" },
-	"2024-12-25": { name: "Christmas" },
-};
+// const holidays = {
+// 	"2024-01-26": { name: "Republic Day" },
+// 	"2024-08-15": { name: "Independence Day" },
+// 	"2024-10-02": { name: "Gandhi Jayanti" },
+// 	"2024-12-25": { name: "Christmas" },
+// };
 
 const tickMarkDates = [
 	"2024-01-26",
@@ -29,6 +30,20 @@ const tickMarkDates = [
 ];
 
 export default function Home() {
+
+	const { user: { user }, getHolidays } = useAuth();
+	
+	async function get() {
+		const hold = await getHolidays();
+		setHolidays(hold)
+	}
+
+	useEffect(() => {
+		get()
+	}, [user])
+
+
+	const [holidays, setHolidays] = useState({})
 	const navigation = useNavigation();
 	const currentDate = new Date();
 	const currentYear = currentDate.getFullYear();

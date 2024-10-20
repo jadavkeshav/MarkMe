@@ -130,6 +130,7 @@ function MainNavigator() {
 		}
 	};
 
+	
 
 	useEffect(() => {
 		if (user?.token) {
@@ -137,12 +138,12 @@ function MainNavigator() {
 				checkJWT();
 				console.log("Check : ", user?.token);
 			}, 60000);
-
+			// getHolidays();
 			return () => clearInterval(interval);
 		}
 	}, [user]);
 
-	console.log("first", user?.user)
+	// console.log("first", user?.user)
 
 
 	return !user ? (

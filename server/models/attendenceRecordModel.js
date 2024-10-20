@@ -26,8 +26,14 @@ const attendanceRecordSchema = new mongoose.Schema({
             type: Number,
           },
         },
+        firstCheckIn: {
+          type: Date,
+          default: Date.now()
+        },
+        secondCheckIn: {
+          type: Date,
+        },
       }],
   }, { timestamps: true });
   
   module.exports = mongoose.model('AttendanceRecord', attendanceRecordSchema);
-  

@@ -34,6 +34,8 @@ export const AuthProvider = ({ children }) => {
         // clearAllData();
     }, []);
 
+
+
     const login = async (username, password) => {
         try {
             const response = await axios.post('http://192.168.1.4:8000/api/user/login', {
@@ -77,8 +79,22 @@ export const AuthProvider = ({ children }) => {
             
     };
 
+    async function getHolidays() {
+		try {
+			const response = await axios.get('http://192.168.1.4:8000/api/user/get-holidays', {
+				headers: {
+					"Authorization": `Bearer ${user?.token}`
+				}
+			});
+			return response.data.holidays
+		} catch (error) {
+            console.error('Change Password error:', error.response.data);
+            return {}
+		}
+	}
+
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, getHolidays }}>
             {children}
         </AuthContext.Provider>
     );
