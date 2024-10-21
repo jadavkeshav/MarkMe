@@ -11,6 +11,7 @@ import { Calendar } from "react-native-calendars";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../util/AuthContext";
+import DailyQuote from "../components/DailyQuote";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -21,13 +22,13 @@ const screenWidth = Dimensions.get("window").width;
 // 	"2024-12-25": { name: "Christmas" },
 // };
 
-const tickMarkDates = [
-	"2024-01-26",
-	"2024-08-15",
-	"2024-10-15",
-	"2024-10-05",
-	"2024-10-07",
-];
+// const tickMarkDates = [
+// 	"2024-01-26",
+// 	"2024-08-15",
+// 	"2024-10-15",
+// 	"2024-10-05",
+// 	"2024-10-07",
+// ];
 
 export default function Home() {
 
@@ -36,20 +37,27 @@ export default function Home() {
 	const [numberOfHolidays, setNumberOfHolidays] = useState(0);
 	const [userAttendenceSummary, setUserAttendenceSummary] = useState({ "absentDays": 0, "presentDays": 0 });
 
+	const tickMarkDates = user?.attendenceRecord?.filter(record => record.status === "present" || record.status === "half-day").map(record => {
+		const date = new Date(record.date);
+		if (!isNaN(date.getTime())) { 
+			return date.toISOString().split("T")[0];
+		}
+		return null;
+	}).filter(Boolean) || []; 
+	console.log("Ticked ========================= >", tickMarkDates)
+
 	async function getData() {
 		const hold = await getHolidays();
 		setHolidays(hold)
 		const res = await getThisMonthHolidays();
-		console.log("Res : ", res.numberOfHolidays)
+		// console.log("Res : ", res.numberOfHolidays)
 		setNumberOfHolidays(res.numberOfHolidays);
 		const summary = await getUserAttendanceSummary();
-		console.log("Summary : ", summary);
+		// console.log("Summary : ", summary);
 		setUserAttendenceSummary(summary.data);
+
+		console.log("User ========================= >", user)
 	}
-
-
-
-
 
 	useEffect(() => {
 		getData();
@@ -94,7 +102,6 @@ export default function Home() {
 	return (
 		<ScrollView contentContainerStyle={styles.container}>
 			{/* <Text style={styles.title}>Attendance Marking App</Text> */}
-
 			<View style={styles.gridContainer}>
 				<View style={styles.statBox}>
 					<Text style={styles.statNumber}>{userAttendenceSummary.presentDays}</Text>
@@ -189,6 +196,7 @@ export default function Home() {
 			</View>
 
 			<View style={styles.footer}>
+				<DailyQuote />
 				<Text style={styles.footerText}>Made for Everyone</Text>
 				<Text style={styles.footerText}>© 2024 Attendance Marking App</Text>
 			</View>

@@ -111,7 +111,7 @@ const loginUser = async (req, res) => {
         const token = jwt.sign(
             { username: user.username, userId: user._id, role: user.role }, // Use user._id here
             process.env.JWT_SECRET,
-            { expiresIn: '30d' }
+            { expiresIn: '9hr' }
         );
 
         const profile = await profileModel.findOne({ rollNo: username });

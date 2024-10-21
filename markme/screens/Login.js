@@ -26,6 +26,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const handleLogin = async () => {
+    console.log("Logging in")
     const success = await login(username, password);
     if (!success) {
       showToast("Invalid username or password.");

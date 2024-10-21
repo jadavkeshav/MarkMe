@@ -15,17 +15,14 @@
 			"supportsTablet": true,
 			"infoPlist": {
 				"NSFaceIDUsageDescription": "This app requires Face ID to authenticate the user.",
-				"NSLocationWhenInUseUsageDescription": "This app uses your location to check attendance based on your presence at the designated location.",
-				"NSCameraUsageDescription": "This app requires camera access to scan QR codes for attendance.",
-				"NSPhotoLibraryUsageDescription": "This app requires access to your photo library to upload profile pictures.",
-				"NSBiometricUsageDescription": "This app uses biometric authentication to verify the user’s identity."
+				
 			}
 		},
 		"android": {
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/adaptive-icon.png",
 				"backgroundColor": "#ffffff",
-				"permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE", "USE_BIOMETRIC", "USE_FINGERPRINT"]
+				"permissions": []
 			}
 		},
 		"web": {

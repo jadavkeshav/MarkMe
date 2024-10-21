@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
+import { useAuth } from '../../util/AuthContext';
 
 const centerCoordinates = {
   // latitude: 17.397313152389106,
@@ -26,10 +27,15 @@ const haversine = (coords1, coords2) => {
     Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c * 1000; 
+  return R * c * 1000;
 };
 
 export default function LocateUser({ route, navigation }) {
+
+  let { user } = useAuth()
+
+  console.log("Token : ", user.token);
+
   let isVerified = route.params?.isVerified;
   const [userLocation, setUserLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -51,20 +57,45 @@ export default function LocateUser({ route, navigation }) {
   }, []);
 
   const checkLocation = async () => {
-    console.log("PRESSES")
+    console.log("PRESSES");
     if (userLocation && isVerified) {
       await fetchUserLocation();
       const distance = haversine(centerCoordinates, userLocation);
-      console.log("Distance : ", distance)
+      console.log("Distance : ", distance);
+
       if (distance <= RADIUS) {
-        console.log("SUCCESS");
-        navigation.navigate("success")
+        try {
+          const response = await fetch('http://192.168.1.4:8000/api/user/mark-attendance', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+               "Authorization": `Bearer ${user.token}`
+            },
+            body: JSON.stringify({ location: userLocation }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            console.log("SUCCESS");
+            navigation.navigate("success", { message: result.message });
+          } else {
+            console.log("ERROR: ", result.message);
+            navigation.navigate("error", { message: result.message });
+
+          }
+        } catch (error) {
+          console.error("Error marking attendance: ", error);
+          navigation.navigate("error", { message: "An error occurred while marking attendance." });
+        }
       } else {
-        console.log("ERROR")
-        navigation.navigate("error")
+        console.log("ERROR");
+        navigation.navigate("error", { message: "You are outside the allowed radius." });
       }
     }
   };
+
+
 
   return (
     <View style={styles.container}>
@@ -116,8 +147,8 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '70%',
-    borderRadius: 10, 
-    overflow: 'hidden', 
+    borderRadius: 10,
+    overflow: 'hidden',
     marginBottom: 20,
   },
   errorText: {
@@ -128,7 +159,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#6200EE', 
+    backgroundColor: '#6200EE',
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 30,

@@ -8,17 +8,6 @@ const path = require('path');
 const attendenceRecordModel = require('./models/attendenceRecordModel.js');
 const User = require('./models/userModel.js');
 
-cron.schedule('0 20 * * *', () => {
-    console.log('Running a task every day at 8 PM');
-});
-cron.schedule('* * * * *', () => {
-    console.log('Running a task every minute');
-});
-
-cron.schedule('0 * * * *', () => {
-    console.log('Running a task at the start of every hour');
-});
-
 const holidayFilePath = path.join(__dirname, '../Holidays.json');
 
 const app = express();

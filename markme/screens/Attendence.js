@@ -45,9 +45,7 @@ export default function Attendence({ navigation }) {
 
 		if (biometricAuth.success) {
 			navigation.navigate("locateuser", {
-				isVerified: true,
-				name: "Keshav",
-				rollno: "22BD1A054N",
+				isVerified: true
 			});
 		} else {
 			showToast("Could not authenticate. Please try again.");

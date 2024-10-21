@@ -4,7 +4,6 @@ import { PaperProvider } from "react-native-paper";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { CommonActions } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
@@ -162,6 +161,10 @@ function MainNavigator() {
 				},
 				tabBarActiveTintColor: "#0056b3",
 				tabBarInactiveTintColor: "#666666",
+				tabBarStyle: {
+					height: 70, // Set your desired height
+					paddingBottom: 10, // Optional: add some padding
+				},
 			}}
 		>
 			<Tab.Screen
