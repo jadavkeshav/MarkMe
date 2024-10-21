@@ -21,11 +21,6 @@ cron.schedule('0 * * * *', () => {
 
 const holidayFilePath = path.join(__dirname, '../Holidays.json');
 
-// Schedule a cron job to run at 11:59 PM every day
-// cron.schedule('59 23 * * *', async () => {
-    
-// });
-
 const app = express();
 
 dotenv.config();

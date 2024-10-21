@@ -1,13 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Image, Text, ScrollView } from 'react-native';
 import { Button, Card, Title, Subheading, Badge, Divider } from 'react-native-paper';
 import Svg, { Circle, G } from 'react-native-svg';
 import { useAuth } from '../util/AuthContext';
 
 const Profile = () => {
+    const { user: { user }, logout, getUserAttendanceLastTwoWeeks } = useAuth();
 
-    const { user: { user }, logout } = useAuth();
+    const [attendance, setAttendance] = useState([]);
 
+    async function getData() {
+        const res = await getUserAttendanceLastTwoWeeks();
+        const sortedAttendance = res.data.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date in descending order
+        setAttendance(sortedAttendance);
+        console.log("Sorted getUserAttendanceLastTwoWeeks: ", sortedAttendance);
+    }
+    
+    console.log("User : ", user);
+    useEffect(()=>{
+        getData();
+    },[user])
     let attendancePercentage = user?.attendancePercentage || 0;
     const userInfo = {
         name: user?.name || "John Doe",
@@ -90,20 +102,21 @@ const Profile = () => {
                 </Card>
 
                 {/* User Information */}
-                <Card style={styles.infoCard}>
+                {/* <Card style={styles.infoCard}>
                     <Card.Content>
                         <Title style={styles.cardTitle}>User Information</Title>
                         <Text style={styles.infoText}>Class: {userInfo.class}</Text>
                         <Text style={styles.infoText}>Email: {userInfo.email}</Text>
                     </Card.Content>
-                </Card>
+                </Card> */}
 
                 {/* Attendance Record */}
                 <Card style={styles.attendanceCard}>
                     <Card.Content>
                         <Title style={styles.cardTitle}>Attendance Record</Title>
-                        {userInfo.attendanceRecord.map((item) => (
-                            <View key={item._id} style={styles.recordContainer}>
+                        {/* Map through fetched attendance data */}
+                        {attendance.map((item, index) => (
+                            <View key={index} style={styles.recordContainer}>
                                 <Text style={styles.recordDate}>{formatDate(item.date)}</Text>
                                 {renderStatusBadge(item.status)}
                                 <Divider style={styles.recordDivider} />

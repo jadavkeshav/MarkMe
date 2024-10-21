@@ -180,6 +180,42 @@ const getProfile = async (req, res) => {
     }
 }
 
+const getHolidaysThisMonth = (req, res) => {
+    const today = new Date();
+    const currentMonth = today.getMonth(); 
+    const currentYear = today.getFullYear();
+
+    const holidayFilePath = path.join(__dirname, '../Holidays.json');
+
+    fs.readFile(holidayFilePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading Holidays.json:', err);
+            return res.status(500).json({ success: false, message: "Unable to fetch holidays" });
+        }
+
+        try {
+            const holidays = JSON.parse(data);
+
+            const holidaysThisMonth = holidays.filter(holiday => {
+                const holidayDate = new Date(holiday.date);
+                return holidayDate.getMonth() === currentMonth && holidayDate.getFullYear() === currentYear;
+            });
+
+            const numberOfHolidays = holidaysThisMonth.length;
+            console.log("number of hold : ", numberOfHolidays)
+            return res.status(200).json({
+                success: true,
+                message: `${numberOfHolidays} holidays found in the current month`,
+                numberOfHolidays: numberOfHolidays,
+                holidays: holidaysThisMonth
+            });
+        } catch (parseError) {
+            console.error('Error parsing Holidays.json:', parseError);
+            return res.status(500).json({ success: false, message: "Error parsing holiday data" });
+        }
+    });
+};
+
 const updatePassword = asyncHandler(async (req, res) => {
     const { userId } = req.user;
     console.log("User Id for password chnage : ", userId)
@@ -218,7 +254,8 @@ function getYesterdaysDate() {
 
 const isHoliday = (req, res) => {
     const today = new Date().toDateString();
-    fs.readFile('../Holidays.json', 'utf8', (err, data) => {
+    const holidayFilePath = path.join(__dirname, '../Holidays.json');
+    fs.readFile(holidayFilePath, 'utf8', (err, data) => {
         if (err) {
             console.error('Error reading Holidays.json:', err);
             return;
@@ -236,7 +273,8 @@ const isHoliday = (req, res) => {
 }
 
 const getHolidays = (req, res) => {
-    fs.readFile('../Holidays.json', 'utf8', (err, data) => {
+    const holidayFilePath = path.join(__dirname, '../Holidays.json');
+    fs.readFile(holidayFilePath, 'utf8', (err, data) => {
         if (err) {
             console.error('Error reading Holidays.json:', err);
             return res.status(500).json({ success: false, message: "Can't get data" });
@@ -520,7 +558,7 @@ const markAbsent = async (req, res) => {
     const today = new Date();
     const todayDateString = today.toDateString();
     const isSunday = today.getDay() === 0;
-
+    const holidayFilePath = path.join(__dirname, '../Holidays.json');
     try {
         const holidayData = fs.readFileSync(holidayFilePath, 'utf8');
         const holidays = JSON.parse(holidayData);
@@ -648,6 +686,91 @@ function getTimeDifferenceFromObject(startTime, endTime) {
     return { hours, minutes, seconds };
 }
 
+const getUserAttendanceSummary = async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        const attendanceRecord = await attendenceRecordModel.findOne({ user: userId });
+
+        if (!attendanceRecord) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "No attendance record found for this user" 
+            });
+        }
+
+        let presentDays = 0;
+        let absentDays = 0;
+
+        attendanceRecord.records.forEach(record => {
+            if (record.status === 'present') {
+                presentDays++;
+            } else if (record.status === 'absent') {
+                absentDays++;
+            }
+        });
+        return res.status(200).json({
+            success: true,
+            message: "User attendance summary fetched successfully",
+            data: {
+                presentDays: presentDays,
+                absentDays: absentDays
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching attendance summary:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching attendance summary",
+            error: error.message
+        });
+    }
+};
+
+const getUserAttendanceLastTwoWeeks = async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        const today = new Date();
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(today.getDate() - 14);
+
+        const attendanceRecord = await attendenceRecordModel.findOne({ user: userId });
+
+        if (!attendanceRecord) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "No attendance record found for this user" 
+            });
+        }
+
+        const lastTwoWeeksRecords = attendanceRecord.records.filter(record => {
+            const recordDate = new Date(record.date);
+            return recordDate >= twoWeeksAgo && recordDate <= today;
+        });
+
+        const attendanceData = lastTwoWeeksRecords.map(record => ({
+            date: record.date.toDateString(), // Convert date to a readable format
+            status: record.status,
+        }));
+
+        return res.status(200).json({
+            success: true,
+            message: "Last two weeks attendance records fetched successfully",
+            data: attendanceData
+        });
+
+    } catch (error) {
+        console.error('Error fetching attendance records:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching attendance records",
+            error: error.message
+        });
+    }
+};
+
 
 
 module.exports = {
@@ -660,6 +783,9 @@ module.exports = {
     isHoliday,
     getHolidays,
     test,
-    markAbsent
-    
+    markAbsent,
+    getHolidaysThisMonth,
+    getUserAttendanceSummary,
+    getUserAttendanceLastTwoWeeks
+
 }

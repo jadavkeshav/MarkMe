@@ -31,15 +31,28 @@ const tickMarkDates = [
 
 export default function Home() {
 
-	const { user: { user }, getHolidays } = useAuth();
-	
-	async function get() {
+	const { user: { user }, getHolidays, getThisMonthHolidays, getUserAttendanceSummary } = useAuth();
+	// let numberOfHolidays = 0;
+	const [numberOfHolidays, setNumberOfHolidays] = useState(0);
+	const [userAttendenceSummary, setUserAttendenceSummary] = useState({ "absentDays": 0, "presentDays": 0 });
+
+	async function getData() {
 		const hold = await getHolidays();
 		setHolidays(hold)
+		const res = await getThisMonthHolidays();
+		console.log("Res : ", res.numberOfHolidays)
+		setNumberOfHolidays(res.numberOfHolidays);
+		const summary = await getUserAttendanceSummary();
+		console.log("Summary : ", summary);
+		setUserAttendenceSummary(summary.data);
 	}
 
+
+
+
+
 	useEffect(() => {
-		get()
+		getData();
 	}, [user])
 
 
@@ -80,19 +93,19 @@ export default function Home() {
 
 	return (
 		<ScrollView contentContainerStyle={styles.container}>
-			<Text style={styles.title}>Attendance Marking App</Text>
+			{/* <Text style={styles.title}>Attendance Marking App</Text> */}
 
 			<View style={styles.gridContainer}>
 				<View style={styles.statBox}>
-					<Text style={styles.statNumber}>150</Text>
-					<Text style={styles.statLabel}>Total Attendance Marked</Text>
+					<Text style={styles.statNumber}>{userAttendenceSummary.presentDays}</Text>
+					<Text style={styles.statLabel}>Days Present</Text>
 				</View>
 				<View style={styles.statBox}>
-					<Text style={styles.statNumber}>25</Text>
-					<Text style={styles.statLabel}>Classes This Month</Text>
+					<Text style={styles.statNumber}>{userAttendenceSummary.absentDays}</Text>
+					<Text style={styles.statLabel}>Days Absent</Text>
 				</View>
 				<View style={styles.statBox}>
-					<Text style={styles.statNumber}>5</Text>
+					<Text style={styles.statNumber}>{numberOfHolidays}</Text>
 					<Text style={styles.statLabel}>Holidays</Text>
 				</View>
 			</View>

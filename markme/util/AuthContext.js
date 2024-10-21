@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
                     }
                 });
 
-                console.log("Second : ", pro)
+                // console.log("Second : ", pro)
                 if (pro.data) {
                     const profileData = pro.data;
                     setProfile(pro.data);
@@ -71,6 +71,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+
     
 
     const logout = async () => {
@@ -86,15 +87,61 @@ export const AuthProvider = ({ children }) => {
 					"Authorization": `Bearer ${user?.token}`
 				}
 			});
-			return response.data.holidays
+            console.log("get holidays : ", response.data)
+			return response?.data.holidays
 		} catch (error) {
-            console.error('Change Password error:', error.response.data);
+            console.error('get holidays error:', error);
             return {}
+
+		}
+	}
+
+    async function getThisMonthHolidays() {
+		try {
+			const response = await axios.get('http://192.168.1.4:8000/api/user/get-this-month-holidays', {
+				headers: {
+					"Authorization": `Bearer ${user?.token}`
+				}
+			});
+			console.log("Res of getThisMonthHolidays: ", response.data.numberOfHolidays)
+            return response.data
+		} catch (error) {
+			console.error('get this month holidays error:', error.response.data);
+			return 0
+		}
+	}
+
+    async function getUserAttendanceSummary() {
+		try {
+			const response = await axios.get('http://192.168.1.4:8000/api/user/get-attendance-summary', {
+				headers: {
+					"Authorization": `Bearer ${user?.token}`
+				}
+			});
+			console.log("User Attendence Summary : ", response.data)
+            return response.data
+		} catch (error) {
+			console.error('User Attendence Summary :', error.response.data);
+			return 0
+		}
+	}
+    async function getUserAttendanceLastTwoWeeks() {
+		try {
+			const response = await axios.get('http://192.168.1.4:8000/api/user/get-two-week-attendance', {
+				headers: {
+					"Authorization": `Bearer ${user?.token}`
+				}
+			});
+			console.log("User Attendence Summary : ", response.data)
+            return response.data
+		} catch (error) {
+			console.error('User Attendence Summary :', error.response.data);
+			return 0
 		}
 	}
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, getHolidays }}>
+        <AuthContext.Provider value={{ user, login, logout, getHolidays, getThisMonthHolidays, getUserAttendanceSummary, getUserAttendanceLastTwoWeeks}}>
             {children}
         </AuthContext.Provider>
     );

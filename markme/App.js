@@ -18,7 +18,7 @@ import Login from "./screens/Login";
 import { StatusBar, Touchable, View } from "react-native";
 import Profile from "./screens/Profile";
 import { AuthProvider, useAuth } from "./util/AuthContext";
-import { clearAllData, getDate } from "./util/session";
+import { clearAllData } from "./util/session";
 import axios from "axios";
 
 
@@ -125,12 +125,12 @@ function MainNavigator() {
 				clearAllData();
 				window.location.reload();
 			} else {
-				console.log("Error : ", error);
+				console.log("Error checking JWT : ", error);
 			}
 		}
 	};
 
-	
+
 
 	useEffect(() => {
 		if (user?.token) {

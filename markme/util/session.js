@@ -8,7 +8,7 @@ export const storeData = async (key, value) => {
   }
 };
 
-export const getDate = async (key) => {
+export const getData = async (key) => {
   try {
     const value = await AsyncStorage.getItem(key);
     return value !== null ? value : null; // Return null if value is not found
