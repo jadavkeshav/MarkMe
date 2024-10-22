@@ -10,6 +10,7 @@ const AuthContext = createContext();
 
 // Provider component
 export const AuthProvider = ({ children }) => {
+    const apiURL = process.env.EXPO_PUBLIC_API_URL
     const [user, setUser] = useState(null);
     const [profile, setProfile] = useState(null);
 
@@ -38,7 +39,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const response = await axios.post('http://192.168.1.4:8000/api/user/login', {
+            const response = await axios.post(`${apiURL}/user/login`, {
                 username,
                 password,
             });
@@ -46,7 +47,7 @@ export const AuthProvider = ({ children }) => {
             if (response.data && response.data.user) {
                 const userData = response.data;
 
-                const pro = await axios.get('http://192.168.1.4:8000/api/user/get-profile', {
+                const pro = await axios.get(`${apiURL}/user/get-profile`, {
                     headers: {
                         "Authorization": `Bearer ${userData.token}`
                     }
@@ -82,7 +83,7 @@ export const AuthProvider = ({ children }) => {
 
     async function getHolidays() {
 		try {
-			const response = await axios.get('http://192.168.1.4:8000/api/user/get-holidays', {
+			const response = await axios.get(`${apiURL}/user/get-holidays`, {
 				headers: {
 					"Authorization": `Bearer ${user?.token}`
 				}
@@ -98,7 +99,7 @@ export const AuthProvider = ({ children }) => {
 
     async function getThisMonthHolidays() {
 		try {
-			const response = await axios.get('http://192.168.1.4:8000/api/user/get-this-month-holidays', {
+			const response = await axios.get(`${apiURL}/user/get-this-month-holidays`, {
 				headers: {
 					"Authorization": `Bearer ${user?.token}`
 				}
@@ -113,7 +114,7 @@ export const AuthProvider = ({ children }) => {
 
     async function getUserAttendanceSummary() {
 		try {
-			const response = await axios.get('http://192.168.1.4:8000/api/user/get-attendance-summary', {
+			const response = await axios.get(`${apiURL}/user/get-attendance-summary`, {
 				headers: {
 					"Authorization": `Bearer ${user?.token}`
 				}
@@ -127,7 +128,7 @@ export const AuthProvider = ({ children }) => {
 	}
     async function getUserAttendanceLastTwoWeeks() {
 		try {
-			const response = await axios.get('http://192.168.1.4:8000/api/user/get-two-week-attendance', {
+			const response = await axios.get(`${apiURL}/user/get-two-week-attendance`, {
 				headers: {
 					"Authorization": `Bearer ${user?.token}`
 				}

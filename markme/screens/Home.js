@@ -33,7 +33,6 @@ const screenWidth = Dimensions.get("window").width;
 export default function Home() {
 
 	const { user: { user }, getHolidays, getThisMonthHolidays, getUserAttendanceSummary } = useAuth();
-	// let numberOfHolidays = 0;
 	const [numberOfHolidays, setNumberOfHolidays] = useState(0);
 	const [userAttendenceSummary, setUserAttendenceSummary] = useState({ "absentDays": 0, "presentDays": 0 });
 
@@ -46,6 +45,10 @@ export default function Home() {
 	}).filter(Boolean) || []; 
 	console.log("Ticked ========================= >", tickMarkDates)
 
+	// console.log("Process Env : ", process.env.EXPO_PUBLIC_API_URL)
+
+
+	
 	async function getData() {
 		const hold = await getHolidays();
 		setHolidays(hold)
