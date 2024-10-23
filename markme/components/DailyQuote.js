@@ -53,14 +53,14 @@ const styles = StyleSheet.create({
     quoteText: {
         fontSize: 22,
         fontStyle: "italic",
-        color: "#333",
+        color: "#003366",
         textAlign: "center",
         marginBottom: 10,
     },
     quoteAuthor: {
         fontSize: 16,
         fontWeight: "bold",
-        color: "#888",
+        color: "#003361",
         textAlign: "right",
         width: "100%",
     },

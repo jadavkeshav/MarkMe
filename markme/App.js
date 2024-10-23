@@ -28,11 +28,18 @@ const AuthStack = createNativeStackNavigator();
 
 function MarkAttendenceStackScreen() {
 	return (
-		<AttendenceStack.Navigator initialRouteName="attendence">
+		<AttendenceStack.Navigator initialRouteName="attendence" screenOptions={{
+			headerStyle: {
+				backgroundColor: "#f0f0f0",
+			},
+			headerTitleStyle:{
+				color: "#003366"
+			}
+		}}>
 			<AttendenceStack.Screen
 				name="attendence"
 				component={Attendence}
-				options={{ headerTitle: "Mark Attendence" }}
+				options={{ headerTitle: "Mark Attendence", headerShown: false}}
 			/>
 			<AttendenceStack.Screen
 				name="locateuser"
@@ -62,6 +69,10 @@ function HomeScreenDrawer() {
 					color: "#003366",
 				},
 				headerTintColor: "#003366",
+				headerStyle: {
+					backgroundColor: "#f0f0f0",
+
+				},
 				drawerLabelStyle: {
 					fontSize: 18,
 					color: "#003366",
@@ -71,9 +82,12 @@ function HomeScreenDrawer() {
 					paddingLeft: 10,
 					marginTop: 20,
 				},
-				drawerActiveTintColor: "#0056b3",
+				drawerActiveTintColor: "#003366",
 				drawerInactiveTintColor: "#666666",
 				drawerActiveBackgroundColor: "#cce6ff",
+				drawerStyle: {
+					backgroundColor: "#fff",
+				},
 			}}
 		>
 			<Drawer.Screen
@@ -117,7 +131,7 @@ function AuthStackScreen() {
 				options={{ headerShown: false }}
 			/>
 		</AuthStack.Navigator>
-	);
+	); 
 }
 
 function MainNavigator() {
@@ -153,13 +167,11 @@ function MainNavigator() {
 				checkJWT();
 				console.log("Check : ", user?.token);
 			}, 60000);
-			// getHolidays();
 			return () => clearInterval(interval);
 		}
 		checkJWT();
 	}, [user]);
 
-	// console.log("first", user?.user)
 
 
 	return !user ? (
@@ -176,11 +188,11 @@ function MainNavigator() {
 					color: "#003366",
 					fontSize: 16,
 				},
-				tabBarActiveTintColor: "#0056b3",
+				tabBarActiveTintColor: "#003366",
 				tabBarInactiveTintColor: "#666666",
 				tabBarStyle: {
-					height: 70, // Set your desired height
-					paddingBottom: 10, // Optional: add some padding
+					height: 70,
+					paddingBottom: 10,
 				},
 			}}
 		>
@@ -218,13 +230,11 @@ function MainNavigator() {
 
 export default function App() {
 
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
-
 	return (
 		<AuthProvider>
 			<PaperProvider>
 				<StatusBar
-					backgroundColor="white"
+					backgroundColor="#f0f0f0"
 					color="black"
 					barStyle="dark-content"
 				/>

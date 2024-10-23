@@ -15,21 +15,6 @@ import DailyQuote from "../components/DailyQuote";
 
 const screenWidth = Dimensions.get("window").width;
 
-// const holidays = {
-// 	"2024-01-26": { name: "Republic Day" },
-// 	"2024-08-15": { name: "Independence Day" },
-// 	"2024-10-02": { name: "Gandhi Jayanti" },
-// 	"2024-12-25": { name: "Christmas" },
-// };
-
-// const tickMarkDates = [
-// 	"2024-01-26",
-// 	"2024-08-15",
-// 	"2024-10-15",
-// 	"2024-10-05",
-// 	"2024-10-07",
-// ];
-
 export default function Home() {
 
 	const { user: { user }, getHolidays, getThisMonthHolidays, getUserAttendanceSummary } = useAuth();
@@ -38,17 +23,17 @@ export default function Home() {
 
 	const tickMarkDates = user?.attendenceRecord?.filter(record => record.status === "present" || record.status === "half-day").map(record => {
 		const date = new Date(record.date);
-		if (!isNaN(date.getTime())) { 
+		if (!isNaN(date.getTime())) {
 			return date.toISOString().split("T")[0];
 		}
 		return null;
-	}).filter(Boolean) || []; 
-	console.log("Ticked ========================= >", tickMarkDates)
+	}).filter(Boolean) || [];
+	// console.log("Ticked ========================= >", tickMarkDates)
 
 	// console.log("Process Env : ", process.env.EXPO_PUBLIC_API_URL)
 
 
-	
+
 	async function getData() {
 		const hold = await getHolidays();
 		setHolidays(hold)
@@ -59,7 +44,7 @@ export default function Home() {
 		// console.log("Summary : ", summary);
 		setUserAttendenceSummary(summary.data);
 
-		console.log("User ========================= >", user)
+		// console.log("User ========================= >", user)
 	}
 
 	useEffect(() => {
@@ -128,12 +113,12 @@ export default function Home() {
 						backgroundColor: "#ffffff",
 						calendarBackground: "#ffffff",
 						textSectionTitleColor: "#b6c1cd",
-						selectedDayBackgroundColor: "#00adf5",
+						selectedDayBackgroundColor: "#003366",
 						selectedDayTextColor: "#ffffff",
-						todayTextColor: "#00adf5",
+						todayTextColor: "#003366",
 						dayTextColor: "#2d4150",
 						arrowColor: "orange",
-						monthTextColor: "#4A90E2",
+						monthTextColor: "#003366",
 						textDayFontFamily: "monospace",
 						textMonthFontFamily: "monospace",
 						textDayHeaderFontFamily: "monospace",
@@ -141,6 +126,7 @@ export default function Home() {
 						textMonthFontWeight: "bold",
 						textDayHeaderFontWeight: "400",
 					}}
+					hideExtraDays={true}
 					dayComponent={({ date }) => {
 						const isHoliday = holidays[date.dateString];
 						const isTicked = tickMarkDates.includes(date.dateString);
@@ -161,8 +147,7 @@ export default function Home() {
 									<Text
 										style={{
 											color:
-												date.dateString ===
-													new Date().toISOString().split("T")[0]
+												date.dateString === new Date().toISOString().split("T")[0]
 													? "#00adf5"
 													: "black",
 											fontSize: 16,
@@ -176,26 +161,23 @@ export default function Home() {
 						);
 					}}
 				/>
+
 			</View>
 
 			<View style={styles.quickActionsContainer}>
 				<Text style={styles.quickActionsTitle}>Quick Actions</Text>
 				<TouchableOpacity
 					style={styles.actionButton}
-					onPress={() => navigation.navigate("MarkAttendance")}
+					onPress={() => navigation.navigate("attendence")}
 				>
 					<Text style={styles.actionButtonText}>Mark Attendance</Text>
 				</TouchableOpacity>
 				<TouchableOpacity
 					style={styles.actionButton}
-					onPress={() => navigation.navigate("ViewReports")}>
-					<Text style={styles.actionButtonText}>View Reports</Text>
+					onPress={() => navigation.navigate("Profile")}>
+					<Text style={styles.actionButtonText}>Profile</Text>
 				</TouchableOpacity>
-				<TouchableOpacity
-					style={styles.actionButton}
-					onPress={() => navigation.navigate("LeaveRequests")}>
-					<Text style={styles.actionButtonText}>Leave Requests</Text>
-				</TouchableOpacity>
+
 			</View>
 
 			<View style={styles.footer}>
@@ -210,7 +192,7 @@ export default function Home() {
 const styles = StyleSheet.create({
 	container: {
 		flexGrow: 1,
-		backgroundColor: "#f0f8ff",
+		backgroundColor: "#f0f0f0",
 		padding: 20,
 	},
 	title: {
@@ -226,7 +208,7 @@ const styles = StyleSheet.create({
 		marginBottom: 20,
 	},
 	statBox: {
-		backgroundColor: "#4a90e2",
+		backgroundColor: "#003366",
 		padding: 15,
 		borderRadius: 10,
 		width: "30%",
@@ -278,7 +260,7 @@ const styles = StyleSheet.create({
 	},
 	quickActionsContainer: {
 		marginTop: 20,
-		backgroundColor: "#ffffff",
+		backgroundColor: "#003366",
 		padding: 20,
 		borderRadius: 10,
 		shadowColor: "#000",
@@ -291,18 +273,19 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		fontWeight: "bold",
 		marginBottom: 10,
-		color: "#333",
+		color: "#fff",
 	},
 	actionButton: {
-		backgroundColor: "#00adf5",
+		backgroundColor: "#ffffff",
 		padding: 10,
 		borderRadius: 10,
 		alignItems: "center",
 		marginVertical: 5,
 	},
 	actionButtonText: {
-		color: "#ffffff",
+		color: "#003366",
 		fontSize: 16,
+		fontWeight: "700"
 	},
 	footer: {
 		marginTop: 30,

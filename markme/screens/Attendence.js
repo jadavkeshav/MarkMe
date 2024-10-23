@@ -55,9 +55,6 @@ export default function Attendence({ navigation }) {
 
 	return (
 		<View style={styles.container}>
-			<View style={styles.header}>
-				<Text style={styles.headerText}>Attendance App</Text>
-			</View>
 			<Card style={styles.card}>
 				<Card.Content>
 					<Title style={styles.title}>Welcome Back!</Title>
@@ -67,7 +64,7 @@ export default function Attendence({ navigation }) {
 						mode="contained"
 						onPress={handleBiometricAuth}
 						style={styles.button}
-						color="#4CAF50" 
+						labelStyle={styles.buttonText}
 					>
 						Authenticate
 					</Button>
@@ -85,7 +82,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: "#ffffff", 
+		backgroundColor: "#f0f0f0", 
 		padding: 20,
 	},
 	header: {
@@ -108,19 +105,19 @@ const styles = StyleSheet.create({
 		padding: 20,
 		alignItems: 'center',
 		justifyContent: 'center',
-		backgroundColor: "#ffffff", 
+		backgroundColor: "#003366", 
 	},
 	title: {
 		textAlign: "center",
 		marginBottom: 10,
-		color: "#000", 
+		color: "#f7f9ff", 
 		fontSize: 24,
 		fontWeight: 'bold',
 	},
 	description: {
 		textAlign: "center",
 		marginBottom: 20,
-		color: "#000", 
+		color: "#f7f9ff", 
 		fontSize: 16,
 	},
 	button: {
@@ -128,6 +125,12 @@ const styles = StyleSheet.create({
 		paddingVertical: 5,
 		borderRadius: 5,
 		width: '100%', 
+		backgroundColor: "#f0f0f0",
+		color: "#003366",
+	},
+	buttonText: {
+		color: "#003366",
+		fontWeight: "700"
 	},
 	footer: {
 		position: 'absolute',

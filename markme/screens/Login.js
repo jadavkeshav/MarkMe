@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -12 }],
   },
   loginButton: {
-    backgroundColor: "#0056b3",
+    backgroundColor: "#003366",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,

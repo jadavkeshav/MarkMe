@@ -85,11 +85,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#f0f0f0',
     },
     title: {
         marginBottom: 20,
-        color: "#333",
+        color: "#003366",
+        fontWeight: "700"
     },
     input: {
         width: '100%',
@@ -98,7 +99,10 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     button: {
-        marginTop: 10,
-        width: '100%',
-    },
+        marginTop: 20,
+        width: '60%',
+        paddingVertical: 5,
+        borderRadius: 25,
+        backgroundColor: '#003366',
+    }
 });

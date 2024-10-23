@@ -102,7 +102,6 @@ export default function LocateUser({ route, navigation }) {
     }
   };
 
-  // Create coordinates for the dotted circle
   const circleCoordinates = createCircle(centerCoordinates, RADIUS);
 
   return (
@@ -136,7 +135,7 @@ export default function LocateUser({ route, navigation }) {
           ) : (
             <View style={styles.mapContainer}>
               <Text style={styles.loadingText}>Fetching your location...</Text>
-              <ActivityIndicator size="large" color="#6200EE" />
+              <ActivityIndicator size="large" color="#003366" />
             </View>
           )}
           <TouchableOpacity style={styles.button} onPress={checkLocation} disabled={loading}>
@@ -163,7 +162,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#333333',
+    color: '#003366',
     marginVertical: 20,
     textAlign: 'center',
   },
@@ -186,7 +185,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    color: '#6200EE',
+    color: '#003366',
     marginBottom: 10,
   },
   errorText: {
@@ -197,7 +196,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#003366',
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 30,

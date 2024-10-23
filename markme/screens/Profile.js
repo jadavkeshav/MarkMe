@@ -8,38 +8,52 @@ const Profile = () => {
     const { user: { user }, logout, getUserAttendanceLastTwoWeeks } = useAuth();
 
     const [attendance, setAttendance] = useState([]);
+    const [attendancePercentage, setAttendancePercentage] = useState(0);  // Initialize with 0
+
 
     async function getData() {
         const res = await getUserAttendanceLastTwoWeeks();
-        const sortedAttendance = res.data.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date in descending order
+        const sortedAttendance = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
         setAttendance(sortedAttendance);
         console.log("Sorted getUserAttendanceLastTwoWeeks: ", sortedAttendance);
+
+
+        // attendecePercentage formulas  = ((presentDays + 0.5 x half-days)/TotalDays) * 100
+        const totalDays = sortedAttendance.length;
+        const presentDays = sortedAttendance.filter(item => item.status === 'present').length;
+        const halfDays = sortedAttendance.filter(item => item.status === 'half-day').length;
+        
+        const attendanceScore = presentDays + (0.5 * halfDays);
+        const percentage = totalDays > 0 ? (attendanceScore / totalDays) * 100 : 0;
+        
+        setAttendancePercentage(percentage.toFixed(2)); 
+        
+        console.log("Sorted getUserAttendanceLastTwoWeeks: ", sortedAttendance);
+        console.log("Calculated attendance percentage: ", percentage);
     }
     
     console.log("User : ", user);
     useEffect(()=>{
         getData();
     },[user])
-    let attendancePercentage = user?.attendancePercentage || 0;
+    // let attendancePercentage = user?.attendancePercentage || 0;
     const userInfo = {
         name: user?.name || "John Doe",
         rollNo: user?.rollNo || "22BD******",
         class: user?.class || "N/A",
         email: user?.email || "example@domain.com",
         imageURI: user?.profilePhoto || "https://via.placeholder.com/150",
-        attendanceRecord: user?.attendenceRecord.slice(-6).reverse() || []  // Get the last 6 records and reverse them to show latest first
+        attendanceRecord: user?.attendenceRecord.slice(-6).reverse() || []  
     };
 
-    // Format date with leading zeros for day and month
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
     };
 
-    // Render attendance status badge
     const renderStatusBadge = (status) => {
         let badgeStyle;
         let label;
@@ -67,6 +81,16 @@ const Profile = () => {
         );
     };
 
+    const getAttendanceColor = (percentage) => {
+        if (percentage < 50) {
+            return '#F44336';
+        } else if (percentage >= 50 && percentage < 75) {
+            return '#FFC107';
+        } else {
+            return '#4CAF50';
+        }
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
@@ -77,7 +101,6 @@ const Profile = () => {
                 <Title style={styles.userName}>{userInfo.name}</Title>
                 <Subheading style={styles.userRollNo}>{userInfo.rollNo}</Subheading>
 
-                {/* Attendance Percentage */}
                 <Card style={styles.card}>
                     <Card.Content>
                         <Title style={styles.cardTitle}>Attendance Percentage</Title>
@@ -89,7 +112,7 @@ const Profile = () => {
                                         cx="50"
                                         cy="50"
                                         r="45"
-                                        stroke="#76c7c0"
+                                        stroke={getAttendanceColor(attendancePercentage)}
                                         strokeWidth="10"
                                         fill="none"
                                         strokeDasharray={`${attendancePercentage * 2.83}, 283`}
@@ -101,20 +124,17 @@ const Profile = () => {
                     </Card.Content>
                 </Card>
 
-                {/* User Information */}
-                {/* <Card style={styles.infoCard}>
+                <Card style={styles.infoCard}>
                     <Card.Content>
                         <Title style={styles.cardTitle}>User Information</Title>
-                        <Text style={styles.infoText}>Class: {userInfo.class}</Text>
-                        <Text style={styles.infoText}>Email: {userInfo.email}</Text>
+                        <Text style={styles.infoText}>RollNo &nbsp;&nbsp; {userInfo.rollNo}</Text>
+                        <Text style={styles.infoText}>Email &nbsp;&nbsp;&nbsp;&nbsp; {userInfo.email}</Text>
                     </Card.Content>
-                </Card> */}
+                </Card>
 
-                {/* Attendance Record */}
                 <Card style={styles.attendanceCard}>
                     <Card.Content>
                         <Title style={styles.cardTitle}>Attendance Record</Title>
-                        {/* Map through fetched attendance data */}
                         {attendance.map((item, index) => (
                             <View key={index} style={styles.recordContainer}>
                                 <Text style={styles.recordDate}>{formatDate(item.date)}</Text>
@@ -122,10 +142,12 @@ const Profile = () => {
                                 <Divider style={styles.recordDivider} />
                             </View>
                         ))}
+                         <Text style={styles.attendanceNote}>
+            * This is a record of the last week only.
+        </Text>
                     </Card.Content>
                 </Card>
 
-                {/* Logout Button */}
                 <Button
                     mode="contained"
                     onPress={logout}
@@ -142,7 +164,7 @@ const Profile = () => {
 const styles = StyleSheet.create({
     scrollContainer: {
         flexGrow: 1,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#f0f0f0',
 
     },
     container: {
@@ -150,7 +172,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 20,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#f0f0f0',
         marginVertical: 20
     },
     profilePhoto: {
@@ -163,7 +185,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 5,
-        color: '#333',
+        color: '#003366',
     },
     userRollNo: {
         fontSize: 16,
@@ -181,10 +203,16 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#444',
+        color: '#003366',
         marginBottom: 10,
         textAlign: "center"
     },
+    attendanceNote: {
+        marginTop: 10,
+        fontSize: 12,
+        color: 'red',
+        textAlign: 'center',
+    },    
     speedometerContainer: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -268,7 +296,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         width: '60%',
         paddingVertical: 5,
-        borderRadius: 5,
+        borderRadius: 25,
         backgroundColor: '#f44336',
     },
 });
