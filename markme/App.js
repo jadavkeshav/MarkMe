@@ -24,6 +24,7 @@ import axios from "axios";
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
 const AttendenceStack = createNativeStackNavigator();
+const AuthStack = createNativeStackNavigator();
 
 function MarkAttendenceStackScreen() {
 	return (
@@ -107,13 +108,26 @@ function HomeScreenDrawer() {
 	);
 }
 
+function AuthStackScreen() {
+	return (
+		<AuthStack.Navigator initialRouteName="Login">
+			<AuthStack.Screen
+				name="Login"
+				component={Login}
+				options={{ headerShown: false }}
+			/>
+		</AuthStack.Navigator>
+	);
+}
+
 function MainNavigator() {
 	const { user } = useAuth();
-
+	const apiURL = process.env.EXPO_PUBLIC_API_URL
+	const navigation = useNavigation();
 
 	const checkJWT = async () => {
 		try {
-			const response = await axios.get("http://192.168.1.4:8000/api/user/check", {
+			const response = await axios.get(`${apiURL}/user/check`, {
 				headers: {
 					Authorization: `Bearer ${user?.token}`,
 				},
@@ -122,9 +136,11 @@ function MainNavigator() {
 			if (error.response && error.response.status === 401) {
 				console.log("Token expired, logging out...");
 				clearAllData();
-				window.location.reload();
+				navigation.navigate("Login");
 			} else {
 				console.log("Error checking JWT : ", error);
+				clearAllData();
+				navigation.navigate("Login");
 			}
 		}
 	};
@@ -140,13 +156,14 @@ function MainNavigator() {
 			// getHolidays();
 			return () => clearInterval(interval);
 		}
+		checkJWT();
 	}, [user]);
 
 	// console.log("first", user?.user)
 
 
 	return !user ? (
-		<Login />
+		<AuthStackScreen />
 	) : (
 		<Tab.Navigator
 			initialRouteName="Home4"

@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useAuth } from '../../util/AuthContext';
 
 const centerCoordinates = {
-  // latitude: 17.397313152389106,
-  // longitude: 78.49023979337854,
-  latitude: 17.397167580798143,
-  longitude: 78.51400323189831,
+  latitude: 17.397126394634512, 
+  longitude: 78.51397876618095,
 };
 
-const RADIUS = 1000;
+const RADIUS = 57.30; // meter
+// const RADIUS = 1000; // 1000meters
 
 const haversine = (coords1, coords2) => {
-  const R = 6371;
+  const R = 6371; // Radius of the Earth in km
   const toRad = (value) => (value * Math.PI) / 180;
   const φ1 = toRad(coords1.latitude);
   const φ2 = toRad(coords2.latitude);
@@ -27,18 +26,30 @@ const haversine = (coords1, coords2) => {
     Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c * 1000;
+  return R * c * 1000; // Distance in meters
+};
+
+const createCircle = (center, radius, points = 100) => {
+  const coordinates = [];
+  for (let i = 0; i < points; i++) {
+    const angle = (i / points) * 2 * Math.PI; // Angle in radians
+    const dx = radius * Math.cos(angle); // x-coordinate offset
+    const dy = radius * Math.sin(angle); // y-coordinate offset
+    const point = {
+      latitude: center.latitude + (dy / 111300), // 1 degree latitude = 111.3 km
+      longitude: center.longitude + (dx / (111300 * Math.cos(center.latitude * Math.PI / 180))), // 1 degree longitude = 111.3 km * cos(latitude)
+    };
+    coordinates.push(point);
+  }
+  return coordinates;
 };
 
 export default function LocateUser({ route, navigation }) {
-
-  let { user } = useAuth()
-
-  console.log("Token : ", user.token);
-
-  let isVerified = route.params?.isVerified;
+  const { user } = useAuth();
+  const isVerified = route.params?.isVerified;
   const [userLocation, setUserLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   async function fetchUserLocation() {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -49,7 +60,6 @@ export default function LocateUser({ route, navigation }) {
 
     let location = await Location.getCurrentPositionAsync({});
     setUserLocation(location.coords);
-    console.log("LOC : ", location.coords);
   }
 
   useEffect(() => {
@@ -57,19 +67,18 @@ export default function LocateUser({ route, navigation }) {
   }, []);
 
   const checkLocation = async () => {
-    console.log("PRESSES");
     if (userLocation && isVerified) {
       await fetchUserLocation();
       const distance = haversine(centerCoordinates, userLocation);
-      console.log("Distance : ", distance);
+      setLoading(true); // Show loading indicator
 
       if (distance <= RADIUS) {
         try {
-          const response = await fetch('http://192.168.1.4:8000/api/user/mark-attendance', {
+          const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/user/mark-attendance`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-               "Authorization": `Bearer ${user.token}`
+              "Authorization": `Bearer ${user.token}`
             },
             body: JSON.stringify({ location: userLocation }),
           });
@@ -77,25 +86,24 @@ export default function LocateUser({ route, navigation }) {
           const result = await response.json();
 
           if (result.success) {
-            console.log("SUCCESS");
             navigation.navigate("success", { message: result.message });
           } else {
-            console.log("ERROR: ", result.message);
             navigation.navigate("error", { message: result.message });
-
           }
         } catch (error) {
-          console.error("Error marking attendance: ", error);
           navigation.navigate("error", { message: "An error occurred while marking attendance." });
+        } finally {
+          setLoading(false); // Hide loading indicator
         }
       } else {
-        console.log("ERROR");
+        setLoading(false);
         navigation.navigate("error", { message: "You are outside the allowed radius." });
       }
     }
   };
 
-
+  // Create coordinates for the dotted circle
+  const circleCoordinates = createCircle(centerCoordinates, RADIUS);
 
   return (
     <View style={styles.container}>
@@ -103,6 +111,7 @@ export default function LocateUser({ route, navigation }) {
         <Text style={styles.errorText}>{errorMsg}</Text>
       ) : (
         <>
+          <Text style={styles.title}>Locate Your Position</Text>
           {userLocation ? (
             <MapView
               style={styles.map}
@@ -112,23 +121,30 @@ export default function LocateUser({ route, navigation }) {
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }}
+              showsUserLocation
+              loadingEnabled
             >
               <Marker coordinate={centerCoordinates} title="Center Point" />
               <Marker coordinate={userLocation} title="Your Location" />
+              <Polyline
+                coordinates={circleCoordinates}
+                strokeColor="#6200EE" // Color of the dotted circle
+                strokeWidth={2}
+                lineDashPattern={[10, 5]} // Dotted line pattern
+              />
             </MapView>
-          ) : <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: centerCoordinates.latitude,
-              longitude: centerCoordinates.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
-          >
-            <Marker coordinate={centerCoordinates} title="Center Point" />
-          </MapView>}
-          <TouchableOpacity style={styles.button} onPress={checkLocation}>
-            <Text style={styles.buttonText}>Locate</Text>
+          ) : (
+            <View style={styles.mapContainer}>
+              <Text style={styles.loadingText}>Fetching your location...</Text>
+              <ActivityIndicator size="large" color="#6200EE" />
+            </View>
+          )}
+          <TouchableOpacity style={styles.button} onPress={checkLocation} disabled={loading}>
+            {loading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.buttonText}>Mark Attendance</Text>
+            )}
           </TouchableOpacity>
         </>
       )}
@@ -141,15 +157,37 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     padding: 16,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginVertical: 20,
+    textAlign: 'center',
   },
   map: {
     width: '100%',
-    height: '70%',
+    height: '60%',
     borderRadius: 10,
-    overflow: 'hidden',
     marginBottom: 20,
+    elevation: 3,
+  },
+  mapContainer: {
+    width: '100%',
+    height: '60%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F0F0F0',
+    borderRadius: 10,
+    marginBottom: 20,
+    elevation: 3,
+  },
+  loadingText: {
+    fontSize: 18,
+    color: '#6200EE',
+    marginBottom: 10,
   },
   errorText: {
     color: 'red',
@@ -160,10 +198,12 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#6200EE',
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 30,
     elevation: 5,
+    width: '100%',
+    alignItems: 'center',
   },
   buttonText: {
     color: '#FFFFFF',

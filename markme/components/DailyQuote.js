@@ -12,7 +12,7 @@ export default function DailyQuote() {
 
     async function fetchQuote() {
         try {
-            const res = await axios.get("http://192.168.1.4:8000/api/user/quote");
+            const res = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/user/quote`);
             setQuote(res.data);
         } catch (error) {
             console.error("Failed to fetch quote:", error);

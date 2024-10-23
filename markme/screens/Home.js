@@ -107,11 +107,11 @@ export default function Home() {
 			{/* <Text style={styles.title}>Attendance Marking App</Text> */}
 			<View style={styles.gridContainer}>
 				<View style={styles.statBox}>
-					<Text style={styles.statNumber}>{userAttendenceSummary.presentDays}</Text>
+					<Text style={styles.statNumber}>{userAttendenceSummary?.presentDays}</Text>
 					<Text style={styles.statLabel}>Days Present</Text>
 				</View>
 				<View style={styles.statBox}>
-					<Text style={styles.statNumber}>{userAttendenceSummary.absentDays}</Text>
+					<Text style={styles.statNumber}>{userAttendenceSummary?.absentDays}</Text>
 					<Text style={styles.statLabel}>Days Absent</Text>
 				</View>
 				<View style={styles.statBox}>
