@@ -7,6 +7,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
+import * as Updates from 'expo-updates';
 import Home from "./screens/Home";
 import Attendence from "./screens/Attendence";
 import LocateUser from "./screens/attendence/LocateUser";
@@ -14,11 +15,12 @@ import Settings from "./screens/Settings";
 import ErrorPage from "./screens/attendence/ErrorPage";
 import SuccessPage from "./screens/attendence/SuccessPage";
 import Login from "./screens/Login";
-import { StatusBar, Touchable, View } from "react-native";
+import { StatusBar, Text, Touchable, View } from "react-native";
 import Profile from "./screens/Profile";
 import { AuthProvider, useAuth } from "./util/AuthContext";
 import { clearAllData } from "./util/session";
 import axios from "axios";
+import { ActivityIndicator } from "react-native";
 
 
 const Drawer = createDrawerNavigator();
@@ -229,6 +231,72 @@ function MainNavigator() {
 
 
 export default function App() {
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const {
+		currentlyRunning,
+		isUpdateAvailable,
+		isUpdatePending,
+	  } = Updates.useUpdates();
+	
+	  useEffect(() => {
+		const checkForUpdates = async () => {
+		  if (isUpdateAvailable) {
+			Alert.alert(
+			  'Update Available',
+			  'A new update is available. Would you like to download it?',
+			  [
+				{
+				  text: 'Cancel',
+				  style: 'cancel',
+				},
+				{
+				  text: 'Update',
+				  onPress: async () => {
+					setIsLoading(true); 
+					try {
+					  await Updates.fetchUpdateAsync(); 
+					  await Updates.reloadAsync();
+					} catch (error) {
+					  console.error('Error downloading update:', error);
+					  setIsLoading(false);
+					  Alert.alert('Update Error', 'There was an error updating the app.');
+					}
+				  },
+				},
+			  ],
+			  { cancelable: false }
+			);
+		  }
+		};
+	
+		checkForUpdates();
+	  }, [isUpdateAvailable]);
+	
+	  useEffect(() => {
+		const applyUpdate = async () => {
+		  if (isUpdatePending) {
+			setIsLoading(true);
+			await Updates.reloadAsync();
+		  }
+		};
+	
+		applyUpdate();
+	  }, [isUpdatePending]);
+	
+	  const runTypeMessage = currentlyRunning.isEmbeddedLaunch
+		? 'This app is running from built-in code'
+		: 'This app is running an update';
+	
+	  if (isLoading) {
+		return (
+		  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<ActivityIndicator size="large" color="#003366" />
+			<Text>Downloading update...</Text>
+		  </View>
+		);
+	  }
 
 	return (
 		<AuthProvider>

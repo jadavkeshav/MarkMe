@@ -11,11 +11,14 @@
 			"resizeMode": "contain",
 			"backgroundColor": "#ffffff"
 		},
+		"updates": {
+			"fallbackToCacheTimeout": 0,
+			"enabled": true
+		},
 		"ios": {
 			"supportsTablet": true,
 			"infoPlist": {
-				"NSFaceIDUsageDescription": "This app requires Face ID to authenticate the user.",
-				
+				"NSFaceIDUsageDescription": "This app requires Face ID to authenticate the user."
 			}
 		},
 		"android": {
@@ -27,6 +30,14 @@
 		},
 		"web": {
 			"favicon": "./assets/favicon.png"
-		}
+		},
+		"plugins": [
+			[
+				"expo-updates",
+				{
+					"username": "jadavkeshav"
+				}
+			]
+		]
 	}
 }
