@@ -1,14 +1,10 @@
-// AuthContext.js
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { clearAllData } from './session';
 
-// Create the context
 const AuthContext = createContext();
 
-// Provider component
 export const AuthProvider = ({ children }) => {
     const apiURL = process.env.EXPO_PUBLIC_API_URL
     const [user, setUser] = useState(null);
@@ -32,7 +28,6 @@ export const AuthProvider = ({ children }) => {
             }
         };
         loadUser();
-        // clearAllData();
     }, []);
 
 
@@ -53,12 +48,10 @@ export const AuthProvider = ({ children }) => {
                     }
                 });
 
-                // console.log("Second : ", pro)
                 if (pro.data) {
                     const profileData = pro.data;
                     setProfile(pro.data);
                     await AsyncStorage.setItem('user-profile', JSON.stringify(profileData));
-                    // console.log(profileData)
                 }
                 setUser(userData);
                 await AsyncStorage.setItem('user', JSON.stringify(userData));
@@ -71,9 +64,6 @@ export const AuthProvider = ({ children }) => {
             return false;
         }
     };
-
-
-    
 
     const logout = async () => {
         setUser(null);
@@ -126,6 +116,7 @@ export const AuthProvider = ({ children }) => {
 			return 0
 		}
 	}
+
     async function getUserAttendanceLastTwoWeeks() {
 		try {
 			const response = await axios.get(`${apiURL}/user/get-two-week-attendance`, {
@@ -148,7 +139,6 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-// Custom hook to use the AuthContext
 export const useAuth = () => {
     return useContext(AuthContext);
 };

@@ -1,5 +1,5 @@
 const express = require('express');
-const { loginUser, registerUser, getProfile, markAttendance, updatePassword, checkToken, isHoliday, getHolidays, test, getHolidaysThisMonth, getUserAttendanceSummary, getUserAttendanceLastTwoWeeks } = require('../controllers/userController');
+const { loginUser, registerUser, getProfile, markAttendance, updatePassword, checkToken, isHoliday, getHolidays, test, getHolidaysThisMonth, getUserAttendanceSummary, getUserAttendanceLastTwoWeeks, markAbsent } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
@@ -37,6 +37,8 @@ router.get('/get-this-month-holidays', protect, getHolidaysThisMonth);
 router.get('/get-holidays', protect, getHolidays);
 
 router.post('/mark-attendance', protect, markAttendance);
+
+router.post('/mark-absent', markAbsent);
 
 router.get('/get-attendance-summary', protect, getUserAttendanceSummary);
 
