@@ -589,8 +589,11 @@ const markAbsent = async (req, res) => {
             }
         });
 
+        res.status(200).json({message: 'Absent users have been marked successfully.'})
+        
         console.log('Absent users have been marked successfully.');
     } catch (error) {
+        res.status(200).json({message: 'Error marking absentees.'})
         console.error('Error marking absentees:', error);
     }
 }
