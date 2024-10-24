@@ -5,8 +5,11 @@ import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useAuth } from '../../util/AuthContext';
 
 const centerCoordinates = {
-  latitude: 17.397126394634512, 
+  latitude: 17.397126394634512,
   longitude: 78.51397876618095,
+  // latitude: 17.397112487344824, 
+  // longitude: 78.49016531263395,
+
 };
 
 const RADIUS = 57.30; // meter
@@ -147,6 +150,12 @@ export default function LocateUser({ route, navigation }) {
           </TouchableOpacity>
         </>
       )}
+
+      <View style={styles.footer}>
+        <Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.
+        </Text>
+      </View>
+
     </View>
   );
 }
@@ -209,4 +218,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 10,
+    alignItems: 'center',
+},
+copyright: {
+    marginBottom: 0,
+    fontSize: 14,
+    color: "#666666",
+    textAlign: "center",
+},
 });

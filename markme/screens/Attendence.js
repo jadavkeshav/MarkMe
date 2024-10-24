@@ -71,7 +71,8 @@ export default function Attendence({ navigation }) {
 				</Card.Content>
 			</Card>
 			<View style={styles.footer}>
-				<Text style={styles.footerText}>© 2024 Attendance App. All Rights Reserved.</Text>
+				<Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.
+				</Text>
 			</View>
 		</View>
 	);
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: "#f0f0f0", 
+		backgroundColor: "#f0f0f0",
 		padding: 20,
 	},
 	header: {
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
 	},
 	headerText: {
 		fontSize: 28,
-		color: "#000", 
+		color: "#000",
 		fontWeight: 'bold',
 		textAlign: 'center',
 	},
@@ -105,26 +106,26 @@ const styles = StyleSheet.create({
 		padding: 20,
 		alignItems: 'center',
 		justifyContent: 'center',
-		backgroundColor: "#003366", 
+		backgroundColor: "#003366",
 	},
 	title: {
 		textAlign: "center",
 		marginBottom: 10,
-		color: "#f7f9ff", 
+		color: "#f7f9ff",
 		fontSize: 24,
 		fontWeight: 'bold',
 	},
 	description: {
 		textAlign: "center",
 		marginBottom: 20,
-		color: "#f7f9ff", 
+		color: "#f7f9ff",
 		fontSize: 16,
 	},
 	button: {
 		marginTop: 10,
 		paddingVertical: 5,
 		borderRadius: 5,
-		width: '100%', 
+		width: '100%',
 		backgroundColor: "#f0f0f0",
 		color: "#003366",
 	},
@@ -137,9 +138,10 @@ const styles = StyleSheet.create({
 		bottom: 20,
 		alignItems: 'center',
 	},
-	footerText: {
-		color: "#000", 
-		fontSize: 14,
-		textAlign: 'center',
-	},
+	copyright: {
+        marginTop: 20,
+        fontSize: 14,
+        color: "#666",
+        textAlign: "center",
+    },
 });

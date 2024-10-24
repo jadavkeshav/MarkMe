@@ -71,7 +71,8 @@ const Login = () => {
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.copyright}>© {new Date().getFullYear()} Your Company</Text>
+      <Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.
+      </Text>
     </KeyboardAvoidingView>
   );
 };

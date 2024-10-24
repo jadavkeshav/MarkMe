@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Alert, ToastAndroid } from 'react-native';
 import { TextInput, Button, Title } from 'react-native-paper';
 import { useAuth } from '../util/AuthContext';
+import { Text } from 'react-native';
 
 export default function Settings() {
     const [currentPassword, setCurrentPassword] = useState('');
@@ -75,6 +76,10 @@ export default function Settings() {
             <Button mode="contained" onPress={handleUpdatePassword} style={styles.button}>
                 Update Password
             </Button>
+            <View style={styles.footer}>
+                <Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.
+                </Text>
+            </View>
         </View>
     );
 }
@@ -104,5 +109,19 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         borderRadius: 25,
         backgroundColor: '#003366',
-    }
+    },
+    footer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: 10,
+        alignItems: 'center',
+    },
+    copyright: {
+        marginBottom: 0,
+        fontSize: 14,
+        color: "#666666",
+        textAlign: "center",
+    },
 });

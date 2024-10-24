@@ -22,20 +22,20 @@ const Profile = () => {
         const totalDays = sortedAttendance.length;
         const presentDays = sortedAttendance.filter(item => item.status === 'present').length;
         const halfDays = sortedAttendance.filter(item => item.status === 'half-day').length;
-        
+
         const attendanceScore = presentDays + (0.5 * halfDays);
         const percentage = totalDays > 0 ? (attendanceScore / totalDays) * 100 : 0;
-        
-        setAttendancePercentage(percentage.toFixed(2)); 
-        
+
+        setAttendancePercentage(percentage.toFixed(2));
+
         console.log("Sorted getUserAttendanceLastTwoWeeks: ", sortedAttendance);
         console.log("Calculated attendance percentage: ", percentage);
     }
-    
+
     console.log("User : ", user);
-    useEffect(()=>{
+    useEffect(() => {
         getData();
-    },[user])
+    }, [user])
     // let attendancePercentage = user?.attendancePercentage || 0;
     const userInfo = {
         name: user?.name || "John Doe",
@@ -43,7 +43,7 @@ const Profile = () => {
         class: user?.class || "N/A",
         email: user?.email || "example@domain.com",
         imageURI: user?.profilePhoto || "https://via.placeholder.com/150",
-        attendanceRecord: user?.attendenceRecord.slice(-6).reverse() || []  
+        attendanceRecord: user?.attendenceRecord.slice(-6).reverse() || []
     };
 
     const formatDate = (dateString) => {
@@ -142,9 +142,9 @@ const Profile = () => {
                                 <Divider style={styles.recordDivider} />
                             </View>
                         ))}
-                         <Text style={styles.attendanceNote}>
-            * This is a record of the last week only.
-        </Text>
+                        <Text style={styles.attendanceNote}>
+                            * This is a record of the last week only.
+                        </Text>
                     </Card.Content>
                 </Card>
 
@@ -156,6 +156,8 @@ const Profile = () => {
                 >
                     Logout
                 </Button>
+                <Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.
+                </Text>
             </View>
         </ScrollView>
     );
@@ -212,7 +214,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: 'red',
         textAlign: 'center',
-    },    
+    },
     speedometerContainer: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -298,6 +300,12 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         borderRadius: 25,
         backgroundColor: '#f44336',
+    },
+    copyright: {
+        marginTop: 20,
+        fontSize: 14,
+        color: "#666666",
+        textAlign: "center",
     },
 });
 

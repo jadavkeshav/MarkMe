@@ -182,8 +182,8 @@ export default function Home() {
 
 			<View style={styles.footer}>
 				<DailyQuote />
-				<Text style={styles.footerText}>Made for Everyone</Text>
-				<Text style={styles.footerText}>© 2024 Attendance Marking App</Text>
+				<Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.
+				</Text>
 			</View>
 		</ScrollView>
 	);
@@ -295,4 +295,10 @@ const styles = StyleSheet.create({
 		color: "#666",
 		fontSize: 14,
 	},
+	copyright: {
+		marginTop: 20,
+		fontSize: 14,
+		color: "#666666",
+		textAlign: "center",
+	  },
 });
