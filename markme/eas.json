@@ -1,0 +1,31 @@
+{
+	"cli": {
+		"version": ">= 11.0.3"
+	},
+	"build": {
+		"development": {
+			"developmentClient": true,
+			"distribution": "internal"
+		},
+		"preview": {
+			"distribution": "internal",
+			"android": {
+				"buildType": "apk"
+			},
+			"ios": {
+				"simulator": true
+			},
+			"env": {
+				"EXPO_PUBLIC_API_URL": "https://markme-server.onrender.com/api"
+			}
+		},
+		"production": {
+			"env": {
+				"EXPO_PUBLIC_API_URL": "https://markme-server.onrender.com/api"
+			}
+		}
+	},
+	"submit": {
+		"production": {}
+	}
+}

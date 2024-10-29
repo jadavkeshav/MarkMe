@@ -1,43 +1,47 @@
 {
-	"expo": {
-		"name": "markme",
-		"slug": "markme",
-		"version": "1.0.10",
-		"orientation": "portrait",
-		"icon": "./assets/icon.png",
-		"userInterfaceStyle": "light",
-		"splash": {
-			"image": "./assets/splash.png",
-			"resizeMode": "contain",
-			"backgroundColor": "#ffffff"
-		},
-		"updates": {
-			"fallbackToCacheTimeout": 0,
-			"enabled": true
-		},
-		"ios": {
-			"supportsTablet": true,
-			"infoPlist": {
-				"NSFaceIDUsageDescription": "This app requires Face ID to authenticate the user."
-			}
-		},
-		"android": {
-			"adaptiveIcon": {
-				"foregroundImage": "./assets/adaptive-icon.png",
-				"backgroundColor": "#ffffff"
-				// "permissions": []
-			}
-		},
-		"web": {
-			"favicon": "./assets/favicon.png"
-		},
-		"plugins": [
-			[
-				"expo-updates",
-				{
-					"username": "jadavkeshav"
-				}
-			]
-		]
-	}
+  "expo": {
+    "name": "markme",
+    "slug": "markme",
+    "version": "1.0.10",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "enabled": true
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "This app requires Face ID to authenticate the user."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-updates",
+        {
+          "username": "jadavkeshav"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "81ef5005-49d0-470c-bd5f-5f12e852368c"
+      }
+    }
+  }
 }
