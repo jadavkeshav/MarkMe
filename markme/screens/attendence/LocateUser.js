@@ -5,10 +5,10 @@ import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useAuth } from '../../util/AuthContext';
 
 const centerCoordinates = {
-  latitude: 17.397126394634512,
-  longitude: 78.51397876618095,
-  // latitude: 17.397112487344824, 
-  // longitude: 78.49016531263395,
+  // latitude: 17.397126394634512,
+  // longitude: 78.51397876618095,
+  latitude: 17.397112487344824, 
+  longitude: 78.49016531263395,
 
 };
 
@@ -65,9 +65,9 @@ export default function LocateUser({ route, navigation }) {
     setUserLocation(location.coords);
   }
 
-  useEffect(() => {
-    fetchUserLocation();
-  }, []);
+  // useEffect(() => {
+  //   fetchUserLocation();
+  // }, []);
 
   const checkLocation = async () => {
     if (userLocation && isVerified) {
