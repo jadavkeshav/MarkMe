@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
                 username,
                 password,
             });
-
+            console.log(apiURL)
             if (response.data && response.data.user) {
                 const userData = response.data;
 
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
 					"Authorization": `Bearer ${user?.token}`
 				}
 			});
-            console.log("get holidays : ", response.data)
+            // console.log("get holidays : ", response.data)
 			return response?.data.holidays
 		} catch (error) {
             console.error('get holidays error:', error);

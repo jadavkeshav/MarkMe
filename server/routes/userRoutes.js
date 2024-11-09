@@ -11,7 +11,6 @@ const quotes = [
     { text: "Push yourself, because no one else is going to do it for you.", author: "Anonymous" }
 ];
 
-// Route to get a random quote
 router.get('/quote', (req, res) => {
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const randomQuote = quotes[randomIndex];

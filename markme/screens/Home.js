@@ -247,6 +247,7 @@ const styles = StyleSheet.create({
 	},
 	holidayContainer: {
 		backgroundColor: "#ff6347",
+		// backgroundColor: "#ff6999",
 		borderRadius: 20,
 		height: 30,
 		width: 30,

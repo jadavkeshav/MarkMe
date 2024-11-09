@@ -41,7 +41,7 @@ const Profile = () => {
         name: user?.name || "John Doe",
         rollNo: user?.rollNo || "22BD******",
         class: user?.class || "N/A",
-        email: user?.email || "example@domain.com",
+        email: user?.email || "jadavkeshav2005@gmail.com",
         imageURI: user?.profilePhoto || "https://via.placeholder.com/150",
         attendanceRecord: user?.attendenceRecord.slice(-6).reverse() || []
     };
@@ -126,7 +126,7 @@ const Profile = () => {
 
                 <Card style={styles.infoCard}>
                     <Card.Content>
-                        <Title style={styles.cardTitle}>User Information</Title>
+                        <Title style={styles.cardTitle}>Student Information</Title>
                         <Text style={styles.infoText}>RollNo &nbsp;&nbsp; {userInfo.rollNo}</Text>
                         <Text style={styles.infoText}>Email &nbsp;&nbsp;&nbsp;&nbsp; {userInfo.email}</Text>
                     </Card.Content>

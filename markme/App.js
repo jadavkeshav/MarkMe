@@ -233,70 +233,78 @@ function MainNavigator() {
 export default function App() {
 
 	const [isLoading, setIsLoading] = useState(false);
+    const [downloadProgress, setDownloadProgress] = useState(0);
+    const { currentlyRunning, isUpdateAvailable, isUpdatePending } = Updates.useUpdates();
+    
+    useEffect(() => {
+        const checkForUpdates = async () => {
+            if (isUpdateAvailable) {
+                Alert.alert(
+                    'Update Available',
+                    'A new update is available. Would you like to download it?',
+                    [
+                        { text: 'Cancel', style: 'cancel' },
+                        {
+                            text: 'Update',
+                            onPress: async () => {
+                                setIsLoading(true);
+                                setDownloadProgress(0);
+                                try {
+                                    const interval = setInterval(() => {
+                                        setDownloadProgress((prev) => Math.min(prev + 10, 100));
+                                    }, 300);
 
-	const {
-		currentlyRunning,
-		isUpdateAvailable,
-		isUpdatePending,
-	  } = Updates.useUpdates();
-	
-	  useEffect(() => {
-		const checkForUpdates = async () => {
-		  if (isUpdateAvailable) {
-			Alert.alert(
-			  'Update Available',
-			  'A new update is available. Would you like to download it?',
-			  [
-				{
-				  text: 'Cancel',
-				  style: 'cancel',
-				},
-				{
-				  text: 'Update',
-				  onPress: async () => {
-					setIsLoading(true); 
-					try {
-					  await Updates.fetchUpdateAsync(); 
-					  await Updates.reloadAsync();
-					} catch (error) {
-					  console.error('Error downloading update:', error);
-					  setIsLoading(false);
-					  Alert.alert('Update Error', 'There was an error updating the app.');
-					}
-				  },
-				},
-			  ],
-			  { cancelable: false }
-			);
-		  }
-		};
-	
-		checkForUpdates();
-	  }, [isUpdateAvailable]);
-	
-	  useEffect(() => {
-		const applyUpdate = async () => {
-		  if (isUpdatePending) {
-			setIsLoading(true);
-			await Updates.reloadAsync();
-		  }
-		};
-	
-		applyUpdate();
-	  }, [isUpdatePending]);
-	
-	  const runTypeMessage = currentlyRunning.isEmbeddedLaunch
-		? 'This app is running from built-in code'
-		: 'This app is running an update';
-	
-	  if (isLoading) {
-		return (
-		  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-			<ActivityIndicator size="large" color="#003366" />
-			<Text>Downloading update...</Text>
-		  </View>
-		);
-	  }
+                                    await Updates.fetchUpdateAsync();
+                                    clearInterval(interval);
+                                    setDownloadProgress(100);
+                                    await Updates.reloadAsync();
+                                } catch (error) {
+                                    console.error('Error downloading update:', error);
+                                    setIsLoading(false);
+                                    Alert.alert('Update Error', 'There was an error updating the app.');
+                                }
+                            },
+                        },
+                    ],
+                    { cancelable: false }
+                );
+            }
+        };
+
+        checkForUpdates();
+    }, [isUpdateAvailable]);
+
+    useEffect(() => {
+        const applyUpdate = async () => {
+            if (isUpdatePending) {
+                setIsLoading(true);
+                await Updates.reloadAsync();
+            }
+        };
+
+        applyUpdate();
+    }, [isUpdatePending]);
+
+    const runTypeMessage = currentlyRunning.isEmbeddedLaunch
+        ? 'This app is running from built-in code'
+        : 'This app is running an update';
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+                <ActivityIndicator size="large" color="#003366" />
+                <Text style={{ marginTop: 20, fontSize: 18, color: "#003366" }}>Downloading update...</Text>
+                <ProgressBarAndroid
+                    styleAttr="Horizontal"
+                    indeterminate={false}
+                    progress={downloadProgress / 100}
+                    color="#003366"
+                    style={{ width: '80%', marginTop: 20 }}
+                />
+                <Text style={{ marginTop: 10, fontSize: 16 }}>{`${downloadProgress}%`}</Text>
+            </View>
+        );
+    }
 
 	return (
 		<AuthProvider>

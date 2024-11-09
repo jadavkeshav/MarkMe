@@ -628,7 +628,9 @@ const markAttendance = async (req, res) => {
         if (!todayRecord) {
             const timeDifferenceFromNineAM = getTimeDifferenceFromNineAM(currentTime);
             console.log(timeDifferenceFromNineAM)
-            if (timeDifferenceFromNineAM.hours >= 3) {
+            if (!timeDifferenceFromNineAM) {
+                return res.status(400).json({ success: false, message: "First check-in can only occur after 9 AM." });
+            } else if (timeDifferenceFromNineAM.hours >= 2) {
                 return res.status(400).json({ success: false, message: "First check-in must be within 1 hour 59 minutes from 9 AM" });
             }
 
@@ -678,6 +680,11 @@ const markAttendance = async (req, res) => {
 function getTimeDifferenceFromNineAM(currentTime) {
     const nineAM = new Date();
     nineAM.setHours(9, 0, 0, 0);
+
+    if (currentTime < nineAM) {
+        return null; // or some indicator that it’s invalid
+    }
+
     return getTimeDifferenceFromObject(nineAM, currentTime);
 }
 
