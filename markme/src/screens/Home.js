@@ -1,9 +1,8 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	Text,
 	View,
 	StyleSheet,
-	Dimensions,
 	ScrollView,
 	TouchableOpacity,
 } from "react-native";
@@ -12,8 +11,6 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../util/AuthContext";
 import DailyQuote from "../components/DailyQuote";
-
-const screenWidth = Dimensions.get("window").width;
 
 export default function Home() {
 
@@ -28,23 +25,14 @@ export default function Home() {
 		}
 		return null;
 	}).filter(Boolean) || [];
-	// console.log("Ticked ========================= >", tickMarkDates)
-
-	// console.log("Process Env : ", process.env.EXPO_PUBLIC_API_URL)
-
-
 
 	async function getData() {
 		const hold = await getHolidays();
 		setHolidays(hold)
 		const res = await getThisMonthHolidays();
-		// console.log("Res : ", res.numberOfHolidays)
 		setNumberOfHolidays(res.numberOfHolidays);
 		const summary = await getUserAttendanceSummary();
-		// console.log("Summary : ", summary);
 		setUserAttendenceSummary(summary.data);
-
-		// console.log("User ========================= >", user)
 	}
 
 	useEffect(() => {
@@ -89,7 +77,6 @@ export default function Home() {
 
 	return (
 		<ScrollView contentContainerStyle={styles.container}>
-			{/* <Text style={styles.title}>Attendance Marking App</Text> */}
 			<View style={styles.gridContainer}>
 				<View style={styles.statBox}>
 					<Text style={styles.statNumber}>{userAttendenceSummary?.presentDays}</Text>

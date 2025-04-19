@@ -1,11 +1,9 @@
-// screens/Login.js
 import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
-  Alert,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
@@ -19,8 +17,6 @@ const Login = () => {
   function showToast(msg) {
     ToastAndroid.show(msg, ToastAndroid.SHORT);
   }
-
-
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

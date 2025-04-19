@@ -16,7 +16,6 @@ export default function Settings() {
 
     const { user: { token } } = useAuth();
 
-
     const handleUpdatePassword = async () => {
         if (!newPassword || !currentPassword || !confirmPassword) {
             showToast("Please provide all the fields")

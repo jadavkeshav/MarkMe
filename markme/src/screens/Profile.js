@@ -8,7 +8,7 @@ const Profile = () => {
     const { user: { user }, logout, getUserAttendanceLastTwoWeeks } = useAuth();
 
     const [attendance, setAttendance] = useState([]);
-    const [attendancePercentage, setAttendancePercentage] = useState(0);  // Initialize with 0
+    const [attendancePercentage, setAttendancePercentage] = useState(0);
 
 
     async function getData() {
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 25,  // Increased from 12 to 15 for more height
+        paddingVertical: 25,
         paddingHorizontal: 10,
         borderBottomWidth: 0.5,
         borderBottomColor: '#ddd',
