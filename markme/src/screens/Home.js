@@ -169,7 +169,7 @@ export default function Home() {
 
 			<View style={styles.footer}>
 				<DailyQuote />
-				<Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.
+				<Text style={styles.copyright}>© 2025 MarkMe by JadavKeshav. All rights reserved.
 				</Text>
 			</View>
 		</ScrollView>

@@ -67,7 +67,7 @@ const Login = () => {
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.
+      <Text style={styles.copyright}>© 2025 MarkMe by JadavKeshav. All rights reserved.
       </Text>
     </KeyboardAvoidingView>
   );

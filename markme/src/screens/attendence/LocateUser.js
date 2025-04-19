@@ -124,7 +124,7 @@ export default function LocateUser({ route, navigation }) {
         </>
       )}
       <View style={styles.footer}>
-        <Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.</Text>
+        <Text style={styles.copyright}>© 2025 MarkMe by JadavKeshav. All rights reserved.</Text>
       </View>
     </View>
   );

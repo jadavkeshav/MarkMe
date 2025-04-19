@@ -71,7 +71,7 @@ export default function Attendence({ navigation }) {
 				</Card.Content>
 			</Card>
 			<View style={styles.footer}>
-				<Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.
+				<Text style={styles.copyright}>© 2025 MarkMe by JadavKeshav. All rights reserved.
 				</Text>
 			</View>
 		</View>

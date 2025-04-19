@@ -182,7 +182,7 @@ const getProfile = async (req, res) => {
 
 const getHolidaysThisMonth = (req, res) => {
     const today = new Date();
-    const currentMonth = today.getMonth(); 
+    const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
 
     const holidayFilePath = path.join(__dirname, '../Holidays.json');
@@ -313,238 +313,6 @@ function convertDateToObject(date) {
     };
 }
 
-// const markAttendance = async (req, res) => {
-//     const userId = req.user.id;
-//     const username = req.user.username;
-//     try {
-//         const holidays = JSON.parse(fs.readFileSync(path.join(__dirname, '../Holidays.json'), 'utf8'));
-//         const holidayDates = new Set(holidays.map(holiday => new Date(holiday.date).toISOString().split('T')[0]));
-
-//         const diff9 = getTimeDifferenceFromNineAM();
-
-//         console.log("Date => ", diff9.date)
-
-//         const today = new Date(diff9.date);
-//         const isSunday = today.getDay() === 0;
-
-//         if (holidayDates.has(diff9.date) || isSunday) {
-//             console.log(`${username} => Can't mark attendance today; it is a holiday.`);
-//             return res.status(403).json({ message: "Can't mark attendance today; it is a holiday." });
-//         }
-
-//         // console.log("Diff9 : ", diff9.success);
-//         if (!diff9.success) {
-//             console.log(`${username} => Too Early.Can't Mark attendence now.`);
-//             return res.status(401).json({ message: "Too Early.Can't Mark attendence now." });
-//         }
-//         const userRecords = await attendenceRecordModel.findOne({
-//             user: userId
-//         });
-
-//         if (!userRecords) {
-//             if (!diff9.success) {
-//                 console.log(`${username} => Can't Mark attendence now.`);
-//                 return res.status(401).json({ message: "Can't Mark attendence now." });
-//             }
-//             if ((diff9.hours > 0) && (diff9.hours < 20)) {
-//                 const newUserRecod = await attendenceRecordModel.create({
-//                     user: userId,
-//                     records: {
-//                         date: diff9.date,
-//                         status: 'half-day'
-//                     }
-//                 })
-//                 console.log(`${username} => Attendence marked as half-day`);
-//                 return res.json({ message: 'Attendence marked as half-day', newUserRecod });
-//             } else {
-//                 console.log(`${username} => Can't Mark attendence now.`);
-//                 return res.status(401).json({ message: "Can't Mark attendence now." });
-//             }
-//         }
-
-//         let todayUserRecord = userRecords.records.filter((record) => {
-//             const recordDate = new Date(record.date).toDateString();
-//             return recordDate == diff9.date
-//         });
-//         if (todayUserRecord.length === 0) {
-//             let nowAtt = {
-//                 date: diff9.date,
-//                 status: 'half-day'
-//             }
-//             userRecords.records.push(nowAtt);
-//             await userRecords.save();
-//             console.log(`${username} => New record created and attendence marked as half-day.`);
-//             return res.json({ message: 'Attendence marked as half-day',  userRecords });
-//         }
-//         // console.log("DATE ---- > : ", todayUserRecord[0].date)
-//         const firstCheckIn = convertDateToObject(todayUserRecord[0].date);
-//         console.log(`${username} => First-check-In`);
-//         // console.log("First check-in : ", firstCheckIn);
-//         const secondCheckIn = getTimeDifferenceFromObject(firstCheckIn);
-//         console.log(`${username} => Second-Check-In.`);
-//         // console.log("Second check-in : ", secondCheckIn);
-//         if (secondCheckIn.hours<=1) {
-//             return res.status(400).json({
-//                 message: 'Check-in too soon, please try again later'
-//             });
-//         }
-//         else if (((secondCheckIn.hours >= 5) && (secondCheckIn.minutes >= 55)) && secondCheckIn.hours <= 8) {
-//             let nowAtt = {
-//                 date: diff9.date,
-//                 status: 'present'
-//             }
-//             userRecords.records.push(nowAtt);
-//             await userRecords.save();
-//             console.log(`${username} => Attendence marked as Present.`);
-//             return res.json({ message: 'Attendence marked as Present', userRecords });
-//         } else if (secondCheckIn.hours >= 2 && ((secondCheckIn.hours < 5) && (secondCheckIn.minutes < 55))) {
-//             let nowAtt = {
-//                 date: diff9.date,
-//                 status: 'half-day'
-//             }
-//             userRecords.records.push(nowAtt);
-//             await userRecords.save();
-//             console.log(`${username} => Attendence marked as half-day.`);
-//             return res.json({ message: 'Attendence marked as half-day', userRecords });
-//         } else if ((secondCheckIn.hours >= 9) && (secondCheckIn.minutes >= 1)) {
-//             console.log(`${username} => Too much time has passed since the first check-in. Status remains as half-day.`);
-//             return res.status(400).json({
-//                 message: 'Too much time has passed since the first check-in. Status remains as half-day'
-//             });
-//         } else {
-//             console.log(`${username} => Check-in too soon, please try again later.`);
-//             return res.status(400).json({
-//                 message: 'Check-in too soon, please try again later'
-//             });
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         console.log(`${username} => Error marking attendance.`);
-//         res.status(500).json({ message: 'Error marking attendance' });
-//     }
-// }
-
-
-// const markAttendance = async (req, res) => {
-//     const userId = req.user.id;
-//     const username = req.user.username;
-
-//     try {
-//         // Read holidays from Holidays.json
-// const holidays = JSON.parse(fs.readFileSync(path.join(__dirname, '../Holidays.json'), 'utf8'));
-// // const holidayDates = new Set(holidays.map(holiday => new Date(holiday.date).toISOString().split('T')[0]));
-// const holidayDates = new Set(holidays.map(holiday => {
-//     const holidayDate = new Date(holiday.date);
-//     // Normalize to UTC date string in YYYY-MM-DD format
-//     return holidayDate.toISOString().split('T')[0];
-// }));
-
-// // console.log(holidayDates)
-
-// const diff9 = getTimeDifferenceFromNineAM();
-
-// if (!diff9.success) {
-//     console.log(`${username} => Too Early. Can't mark attendance now.`);
-//     return res.status(401).json({ message: "Too Early. Can't mark attendance now." });
-// }
-
-//         // Convert diff9.date to ISO format for accurate comparison
-//         const todayISO = new Date(diff9.date).toISOString().split('T')[0];
-//         console.log("Date : ", todayISO)
-
-//         // Check if today is Sunday or a holiday
-//         const today = new Date(todayISO);
-//         const isSunday = today.getUTCDay() === 0;
-//         console.log("Hol : ", holidayDates.has(todayISO))
-//         if (holidayDates.has(todayISO) || isSunday) {
-//             console.log(`${username} => Can't mark attendance today; it is a holiday.`);
-//             return res.status(403).json({ message: "Can't mark attendance today; it is a holiday." });
-//         }
-
-//         // Find user attendance records
-//         const userRecords = await attendenceRecordModel.findOne({ user: userId });
-
-//         // If no records exist for the user
-//         if (!userRecords) {
-//             if (diff9.hours > 0 && diff9.hours < 20) {
-//                 const newUserRecord = await attendenceRecordModel.create({
-//                     user: userId,
-//                     records: [{
-//                         date: todayISO, // Use the ISO date here
-//                         status: 'half-day'
-//                     }]
-//                 });
-//                 console.log(`${username} => Attendance marked as half-day`);
-//                 return res.json({ message: 'Attendance marked as half-day', newUserRecord });
-//             } else {
-//                 console.log(`${username} => Can't mark attendance now.`);
-//                 return res.status(401).json({ message: "Can't mark attendance now." });
-//             }
-//         }
-//         let todayUserRecord = userRecords.records.find(record => {
-//             const recordDate = new Date(record.date).toISOString().split('T')[0];
-//             return recordDate === todayISO;
-//         });
-
-//         // If no record exists for today
-//         if (!todayUserRecord) {
-//             const nowAtt = {
-//                 date: now, // Use the ISO date here
-//                 status: 'half-day'
-//             };
-//             userRecords.records.push(nowAtt);
-//             await userRecords.save();
-//             console.log(`${username} => New record created and attendance marked as half-day.`);
-//             return res.json({ message: 'Attendance marked as half-day', userRecords });
-//         }
-//         console.log("Today User record : ", todayUserRecord)
-//         const firstCheckIn = convertDateToObject(todayUserRecord?.date);
-//         console.log(`${username} => First-check-In `, firstCheckIn);
-//         // console.log("First check-in : ", firstCheckIn);
-//         const secondCheckIn = getTimeDifferenceFromObject(firstCheckIn);
-//         console.log(`${username} => Second-Check-In. `,secondCheckIn);
-//         // console.log("Second check-in : ", secondCheckIn);
-//         if (secondCheckIn.hours <= 1) {
-//             return res.status(400).json({
-//                 message: 'Check-in too soon, please try again later'
-//             });
-//         }
-//         else if (((secondCheckIn.hours >= 5) && (secondCheckIn.minutes >= 55)) && secondCheckIn.hours <= 8) {
-//             let nowAtt = {
-//                 date: diff9.date,
-//                 status: 'present'
-//             }
-//             userRecords.records.push(nowAtt);
-//             await userRecords.save();
-//             console.log(`${username} => Attendence marked as Present.`);
-//             return res.json({ message: 'Attendence marked as Present', userRecords });
-//         } else if (secondCheckIn.hours >= 2 && ((secondCheckIn.hours < 5) && (secondCheckIn.minutes < 55))) {
-//             let nowAtt = {
-//                 date: diff9.date,
-//                 status: 'half-day'
-//             }
-//             userRecords.records.push(nowAtt);
-//             await userRecords.save();
-//             console.log(`${username} => Attendence marked as half-day.`);
-//             return res.json({ message: 'Attendence marked as half-day', userRecords });
-//         } else if ((secondCheckIn.hours >= 9) && (secondCheckIn.minutes >= 1)) {
-//             console.log(`${username} => Too much time has passed since the first check-in. Status remains as half-day.`);
-//             return res.status(400).json({
-//                 message: 'Too much time has passed since the first check-in. Status remains as half-day'
-//             });
-//         } else {
-//             console.log(`${username} => Check-in too soon, please try again later.`);
-//             return res.status(400).json({
-//                 message: 'Check-in too soon, please try again later'
-//             });
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         console.log(`${username} => Error marking attendance.`);
-//         res.status(500).json({ message: 'Error marking attendance' });
-//     }
-// }
-
 const test = () => {
     const now = new Date()
     console.log(now.toLocaleString())
@@ -589,11 +357,11 @@ const markAbsent = async (req, res) => {
             }
         });
 
-        res.status(200).json({message: 'Absent users have been marked successfully.'})
-        
+        res.status(200).json({ message: 'Absent users have been marked successfully.' })
+
         console.log('Absent users have been marked successfully.');
     } catch (error) {
-        res.status(200).json({message: 'Error marking absentees.'})
+        res.status(200).json({ message: 'Error marking absentees.' })
         console.error('Error marking absentees:', error);
     }
 }
@@ -627,7 +395,7 @@ const markAttendance = async (req, res) => {
 
         if (!todayRecord) {
             const timeDifferenceFromNineAM = getTimeDifferenceFromNineAM(currentTime);
-            console.log(timeDifferenceFromNineAM)
+            console.log(timeDifferenceFromNineAM);
             if (!timeDifferenceFromNineAM) {
                 return res.status(400).json({ success: false, message: "First check-in can only occur after 9 AM." });
             } else if (timeDifferenceFromNineAM.hours >= 2) {
@@ -645,7 +413,10 @@ const markAttendance = async (req, res) => {
             return res.status(201).json({ success: true, message: "First check-in recorded, status marked as half-day" });
         } else if (todayRecord.firstCheckIn && !todayRecord.secondCheckIn) {
 
+            console.log("Today Record : ", todayRecord);
+
             const timeDifferenceFromFirstCheckIn = getTimeDifferenceFromObject(todayRecord.firstCheckIn, currentTime);
+
 
             console.log("timeDifferenceFromFirstCheckIn : ", timeDifferenceFromFirstCheckIn)
 
@@ -679,8 +450,7 @@ const markAttendance = async (req, res) => {
 
 function getTimeDifferenceFromNineAM(currentTime) {
     const nineAM = new Date();
-    nineAM.setHours(9, 0, 0, 0);
-
+    nineAM.setHours(9, 0, 0, 0); // set to 9 AM
     if (currentTime < nineAM) {
         return null; // or some indicator that it’s invalid
     }
@@ -703,9 +473,9 @@ const getUserAttendanceSummary = async (req, res) => {
         const attendanceRecord = await attendenceRecordModel.findOne({ user: userId });
 
         if (!attendanceRecord) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "No attendance record found for this user" 
+            return res.status(404).json({
+                success: false,
+                message: "No attendance record found for this user"
             });
         }
 
@@ -749,9 +519,9 @@ const getUserAttendanceLastTwoWeeks = async (req, res) => {
         const attendanceRecord = await attendenceRecordModel.findOne({ user: userId });
 
         if (!attendanceRecord) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "No attendance record found for this user" 
+            return res.status(404).json({
+                success: false,
+                message: "No attendance record found for this user"
             });
         }
 
