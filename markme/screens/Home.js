@@ -301,5 +301,5 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		color: "#666666",
 		textAlign: "center",
-	  },
+	},
 });

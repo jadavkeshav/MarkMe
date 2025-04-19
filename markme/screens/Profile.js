@@ -100,6 +100,16 @@ const Profile = () => {
                 />
                 <Title style={styles.userName}>{userInfo.name}</Title>
                 <Subheading style={styles.userRollNo}>{userInfo.rollNo}</Subheading>
+                <View style={{ flexDirection: 'row', padding: 20 }}>
+                <Button
+                    icon="refresh"
+                    mode="contained"
+                    onPress={getData}
+                    style={{ backgroundColor: '#003366' }}
+                >
+                    Refresh
+                </Button>
+            </View>
 
                 <Card style={styles.card}>
                     <Card.Content>
@@ -158,6 +168,9 @@ const Profile = () => {
                 </Button>
                 <Text style={styles.copyright}>© 2024 MarkMe by JadavKeshav. All rights reserved.
                 </Text>
+
+
+
             </View>
         </ScrollView>
     );
